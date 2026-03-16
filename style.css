@@ -103,7 +103,7 @@ h1 {
 .form-inline {
     display: flex;
     gap: 15px;
-    align-items: center;
+    align-items: baseline;
     flex-wrap: wrap;
 }
 
@@ -113,11 +113,6 @@ label {
     font-weight: 600;
     font-size: 0.9rem;
     color: #555;
-}
-
-/* 버튼과 다른 form-group 간의 수직 정렬을 위해 추가 */
-.form-inline .btn {
-    margin-bottom: 15px;
 }
 
 input[type="text"],
@@ -178,6 +173,9 @@ textarea:focus {
 
 .btn-info { background-color: #17a2b8; color: white; }
 .btn-info:hover { background-color: #138496; }
+
+.btn-secondary { background-color: #6c757d; color: white; }
+.btn-secondary:hover { background-color: #5a6268; }
 
 /* 테이블 스타일 */
 .list-header {

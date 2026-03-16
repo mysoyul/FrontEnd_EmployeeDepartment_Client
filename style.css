@@ -103,7 +103,7 @@ h1 {
 .form-inline {
     display: flex;
     gap: 15px;
-    align-items: flex-end;
+    align-items: center;
     flex-wrap: wrap;
 }
 
@@ -113,6 +113,11 @@ label {
     font-weight: 600;
     font-size: 0.9rem;
     color: #555;
+}
+
+/* 버튼과 다른 form-group 간의 수직 정렬을 위해 추가 */
+.form-inline .btn {
+    margin-bottom: 15px;
 }
 
 input[type="text"],
@@ -141,6 +146,8 @@ textarea:focus {
 }
 
 /* 버튼 스타일 */
+
+
 .btn {
     padding: 12px 22px;
     border: none;

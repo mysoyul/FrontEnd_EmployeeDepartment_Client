@@ -15,3 +15,11 @@
 @index.html의 직원등록 부서선택을 스타일을 수정한 이후에 모든 input 필드의 스타일이 <select> 엘리먼트로 보여집니다. Input 엘리먼트의 스타일과 Select의 스타일을 구분해서 다시 변경해 주세요
 
 @index.html의 부서조회(ID)에서 <input type="number" id="search-dept-id">도 <select>로 변경해주세요.
+####
+@PRD_Employee_Department_Client_ECMA.md 를 분석하여 "10.구현 우선순위" 에서 첫번째로 "P1-1 utils.js 공통 모듈 구현"을 작성해 주세요. 이해하기 쉽도록 주석을 잘 추가해주세요.
+
+js/utils.js에 대하여 정리해 준 주요 내용을 js\util.md 정리해서 작성해 줘
+
+
+@PRD_Employee_Department_Client_ECMA.md 를 분석하여 "10.구현 우선순위" 에서 첫번째로 "P1-2 departmentApi.js 클래스 구현 + 부서 CRUD 전체"을 작성해 주세요. 이해하기 쉽도록 주석을 잘 추가하고 구현후에 내용을 정리한 departmentApi.md 문서도 작성해 줘. departmentApi.js를 클래스로 구현하면 초보자에게 어려우니까 쉬운 버전의 departmentApi를 먼저 작성하고 두번째 버전으로 클래스 형태의 departmentApi를 작성해 주세요.
+

@@ -313,8 +313,8 @@ async function createDepartment(departmentData) {
 
 ## 9. 최종 산출물 요구사항
 
-- **파일명:** `index.html`
-- **파일 수:** 1개 (HTML, CSS, JS 모두 포함)
+- **파일명:** `index.html`, `style.css`, `department.js`, `employee.js`
+- **파일 수:** 3개 (HTML, CSS, JS 모두 포함)
 - **실행 방법:** 브라우저에서 `index.html` 파일을 직접 열거나 `Live Server`로 실행
 - **브라우저 지원:** Chrome, Edge 최신 버전
 

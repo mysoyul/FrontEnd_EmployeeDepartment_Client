@@ -405,10 +405,11 @@ function handleEmpListClick(e) {
 /**
  * 직원 관리 탭 기능 초기화 함수
  */
-function initEmployeeTab() {
+async function initEmployeeTab() {
     // 이벤트 리스너가 중복 등록되는 것을 방지하기 위해 한번만 실행되도록 플래그 사용
     if (initEmployeeTab.initialized) return;
 
+    await populateDepartmentDropdown(); // 부서 드롭다운 채우기
     loadAndRenderEmployees(); // 초기 데이터 로드
 
     empForm.addEventListener('submit', handleEmpFormSubmit);
@@ -423,4 +424,30 @@ function initEmployeeTab() {
     
     initEmployeeTab.initialized = true;
     console.log("Employee tab initialized.");
+}
+
+/**
+ * 부서 목록을 가져와 직원 폼의 드롭다운을 채웁니다.
+ */
+async function populateDepartmentDropdown() {
+    // fetchAllDepartments 함수는 department.js에 이미 존재하므로,
+    // 여기서는 간단하게 fetch를 직접 사용하여 부서 목록만 가져옵니다.
+    try {
+        const response = await fetch(`${API_BASE_URL}/departments`);
+        if (!response.ok) throw new Error('부서 목록을 불러오는 데 실패했습니다.');
+        
+        const departments = await response.json();
+        
+        empDeptIdInput.innerHTML = '<option value="">부서를 선택하세요...</option>'; // 기존 옵션 초기화
+        
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept.id;
+            option.textContent = `${dept.departmentName} (ID: ${dept.id})`;
+            empDeptIdInput.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error populating department dropdown:', error);
+        handleApiError(error);
+    }
 }

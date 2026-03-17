@@ -272,6 +272,23 @@ function handleApiError(error) {
 async function loadAndRenderDepartments() {
     const departments = await fetchAllDepartments();
     renderDepartmentList(departments);
+    populateSearchDepartmentDropdown(departments); // 부서 조회 드롭다운도 함께 갱신
+}
+
+/**
+ * 부서 목록으로 조회용 select 드롭다운을 채웁니다.
+ * @param {Array<object>} departments - 부서 데이터 배열
+ */
+function populateSearchDepartmentDropdown(departments) {
+    searchDeptIdInput.innerHTML = '<option value="">조회할 부서를 선택하세요...</option>';
+    if (departments && departments.length > 0) {
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept.id;
+            option.textContent = `${dept.departmentName} (ID: ${dept.id})`;
+            searchDeptIdInput.appendChild(option);
+        });
+    }
 }
 
 /**

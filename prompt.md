@@ -8,6 +8,10 @@
 @PRD_Employee_Department_Client.md 를 분석하여 "8. 구현 우선순위" 에서 첫번째로 "P1-2 (필수) 직원 CRUD 전체" Javascript 파일을 작성해 주세요.
 
 
+@index.html에서 직원등록 할때 부서의 ID가 아니라 부서이름 목록을 <select> 태그로 출력하면 부서이름을 선택하고 value는 부서Id값 유지하도록 수정해 주세요.
 
+@index.html의 <select id="emp-dept-id" required> 하위에 동적으로 생성되는 <option>엘리먼트의 스타일을 기존 필드들의 스타일과 비슷하게 수정해 주세요.
 
+@index.html의 직원등록 부서선택을 스타일을 수정한 이후에 모든 input 필드의 스타일이 <select> 엘리먼트로 보여집니다. Input 엘리먼트의 스타일과 Select의 스타일을 구분해서 다시 변경해 주세요
 
+@index.html의 부서조회(ID)에서 <input type="number" id="search-dept-id">도 <select>로 변경해주세요.

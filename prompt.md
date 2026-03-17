@@ -23,3 +23,6 @@ js/utils.js에 대하여 정리해 준 주요 내용을 js\util.md 정리해서 
 
 @PRD_Employee_Department_Client_ECMA.md 를 분석하여 "10.구현 우선순위" 에서 첫번째로 "P1-2 departmentApi.js 클래스 구현 + 부서 CRUD 전체"을 작성해 주세요. 이해하기 쉽도록 주석을 잘 추가하고 구현후에 내용을 정리한 departmentApi.md 문서도 작성해 줘. departmentApi.js를 클래스로 구현하면 초보자에게 어려우니까 쉬운 버전의 departmentApi를 먼저 작성하고 두번째 버전으로 클래스 형태의 departmentApi를 작성해 주세요.
 
+@index.html 이 departmentApi.js(버전 1)를 호출해서 ajax통신을 하고 싶어요
+
+js/dept_runner_v1.js 작업 결과 요약한 내용을 dept_runner_v1.md로 자세하게 작성해 줘

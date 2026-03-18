@@ -219,7 +219,7 @@
     </script>
 
     <!-- [v2.0] 부서 관리: ES Module 방식 (departmentApi.js 버전 1 함수형 사용) -->
-    <script type="module" src="js/dept_runner_v1.js"></script>
+    <!-- <script type="module" src="js/dept_runner_v1.js"></script> -->
 
     <!-- [v2.0] 직원 관리: ES Module 방식 (employeeApi.js 버전 1 함수형 사용) -->
     <!--                                                                      -->
@@ -233,6 +233,19 @@
     <!--   └─ import departmentApi.js (버전 1 함수형) - 부서 드롭다운용        -->
     <!--   └─ import utils.js                                                 -->
     <!--   └─ window.initEmployeeTab 전역 등록 (showTab에서 호출)              -->
-    <script type="module" src="js/emp_runner_v1.js"></script>
+    <!-- <script type="module" src="js/emp_runner_v1.js"></script> -->
+
+    <!-- [v3.0] 부서 관리: ES Module 방식 (departmentApi.js 버전 2 클래스형 사용) -->
+    <!--   └─ import { DepartmentApi } from departmentApi.js                    -->
+    <!--   └─ const departmentApi = new DepartmentApi()                         -->
+    <script type="module" src="js/dept_runner_v2.js"></script>
+
+    <!-- [v3.0] 직원 관리: ES Module 방식 (employeeApi.js 버전 2 클래스형 사용) -->
+    <!--   └─ import { EmployeeApi }   from employeeApi.js                      -->
+    <!--   └─ import { DepartmentApi } from departmentApi.js                    -->
+    <!--   └─ const employeeApi   = new EmployeeApi()                           -->
+    <!--   └─ const departmentApi = new DepartmentApi()                         -->
+    <!--   └─ window.initEmployeeTab 전역 등록 (showTab에서 호출)               -->
+    <script type="module" src="js/emp_runner_v2.js"></script>
 </body>
 </html>

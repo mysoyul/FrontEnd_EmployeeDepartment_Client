@@ -1,12 +1,20 @@
 import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
     // ────────────────────────────────────────────────
+    // 플러그인 설정
+    // ────────────────────────────────────────────────
+    plugins: [
+        tailwindcss(), // Tailwind CSS v4 — config 파일 없이 바로 동작합니다.
+    ],
+
+    // ────────────────────────────────────────────────
     // 개발 서버 설정
     // ────────────────────────────────────────────────
     server: {
-        port: 3000,   // 개발 서버 포트 (기본값: 5173)
+        port: 3000,   // 개발 서버 포트
         open: true,   // 브라우저 자동 열기
     },
 
@@ -14,7 +22,7 @@ export default defineConfig({
     // 빌드 설정
     // ────────────────────────────────────────────────
     build: {
-        outDir: 'dist',           // 빌드 결과물 폴더
-        sourcemap: true,          // 소스맵 생성 (디버깅용)
+        outDir: 'dist',
+        sourcemap: true,
     },
 });

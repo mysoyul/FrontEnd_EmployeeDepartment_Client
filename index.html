@@ -7,97 +7,136 @@
     <!-- CSS는 src/main.js 에서 import './style.css' 로 처리합니다. -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
 </head>
-<body>
+<body class="bg-slate-100 text-slate-700 min-h-screen p-5">
 
-    <!-- 메시지 표시 영역 -->
-    <div id="message-area">
-        <div id="alert-success" class="alert alert-success">성공 메시지</div>
-        <div id="alert-error" class="alert alert-error">오류 메시지</div>
+    <!-- 메시지 표시 영역 — fixed 우상단, utils.js 가 .show 클래스를 toggle -->
+    <div id="message-area" class="fixed top-5 right-5 z-50 w-72 space-y-2">
+        <div id="alert-success" class="alert rounded-lg px-5 py-4 text-white bg-emerald-500 shadow-lg">성공 메시지</div>
+        <div id="alert-error"   class="alert rounded-lg px-5 py-4 text-white bg-red-500   shadow-lg">오류 메시지</div>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>Employee & Department Manager</h1>
+    <!-- 메인 컨테이너 -->
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-md">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800">Employee &amp; Department Manager</h1>
         </header>
 
         <!-- 탭 메뉴 -->
-        <nav class="tabs">
-            <button class="tab-button active" onclick="showTab('dept-section')">부서 관리 (Department)</button>
-            <button class="tab-button" onclick="showTab('emp-section')">직원 관리 (Employee)</button>
+        <nav class="flex border-b-2 border-slate-200 mb-8">
+            <button class="tab-button active
+                           px-6 py-3 font-semibold text-slate-400
+                           border-b-4 border-transparent -mb-0.5
+                           hover:bg-slate-50 hover:text-slate-600
+                           transition-all duration-300"
+                    onclick="showTab('dept-section')">부서 관리 (Department)</button>
+            <button class="tab-button
+                           px-6 py-3 font-semibold text-slate-400
+                           border-b-4 border-transparent -mb-0.5
+                           hover:bg-slate-50 hover:text-slate-600
+                           transition-all duration-300"
+                    onclick="showTab('emp-section')">직원 관리 (Employee)</button>
         </nav>
 
-        <!-- 부서 관리 섹션 (P1-1 집중 구현 영역) -->
+        <!-- ══════════════════════════════════════════════════
+             부서 관리 섹션
+             ══════════════════════════════════════════════════ -->
         <section id="dept-section" class="content-section active">
-            
+
             <!-- 부서 생성/수정 폼 -->
-            <div class="card">
-                <h3 id="dept-form-title">부서 등록</h3>
+            <div class="card border border-slate-200 rounded-xl p-6 mb-6">
+                <h3 id="dept-form-title"
+                    class="text-lg font-semibold text-slate-700 border-l-4 border-blue-400 pl-3 mb-5">
+                    부서 등록
+                </h3>
                 <form id="dept-form">
-                    <input type="hidden" id="dept-id"> <!-- 수정 시 ID 보관용 -->
-                    <div class="form-inline">
-                        <div class="form-group">
-                            <label for="dept-name">부서명</label>
-                            <input type="text" id="dept-name" placeholder="예: HR" required>
+                    <input type="hidden" id="dept-id">
+                    <div class="flex gap-4 flex-wrap mb-4">
+                        <div class="flex-1 min-w-48">
+                            <label for="dept-name"
+                                   class="block mb-1.5 font-semibold text-sm text-slate-500">부서명</label>
+                            <input type="text" id="dept-name" placeholder="예: HR" required
+                                   class="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                          focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                          transition-all">
                         </div>
-                        <div class="form-group">
-                            <label for="dept-desc">부서 설명</label>
-                            <input type="text" id="dept-desc" placeholder="부서에 대한 설명을 입력하세요" required>
+                        <div class="flex-1 min-w-48">
+                            <label for="dept-desc"
+                                   class="block mb-1.5 font-semibold text-sm text-slate-500">부서 설명</label>
+                            <input type="text" id="dept-desc" placeholder="부서에 대한 설명을 입력하세요" required
+                                   class="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                          focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                          transition-all">
                         </div>
                     </div>
                     <button type="submit" id="dept-submit-btn" class="btn btn-primary">부서 생성</button>
-                    <button type="button" id="dept-cancel-btn" class="btn btn-info" style="display:none;">취소</button>
+                    <button type="button" id="dept-cancel-btn" class="btn btn-info ml-2" style="display:none;">취소</button>
                 </form>
             </div>
 
             <!-- 부서 단건 조회 -->
-            <div class="card">
-                <h3>부서 조회 (ID)</h3>
-                <div class="form-inline">
-                    <select id="search-dept-id" required>
+            <div class="card border border-slate-200 rounded-xl p-6 mb-6">
+                <h3 class="text-lg font-semibold text-slate-700 border-l-4 border-blue-400 pl-3 mb-5">
+                    부서 조회 (ID)
+                </h3>
+                <div class="flex gap-4 flex-wrap items-end">
+                    <select id="search-dept-id" required
+                            class="flex-1 min-w-48 px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                   focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                   transition-all appearance-none">
                         <option value="">조회할 부서를 선택하세요...</option>
-                        <!-- JavaScript를 통해 부서 목록이 채워집니다. -->
                     </select>
                     <button type="button" class="btn btn-success">조회</button>
                 </div>
-                <div id="dept-detail-result" style="margin-top: 15px; display: none;">
-                    <!-- 조회 결과가 여기에 표시됨 -->
+                <div id="dept-detail-result" style="display:none;"
+                     class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200
+                            text-sm text-slate-700 leading-7">
                 </div>
             </div>
 
             <!-- 부서 목록 -->
-            <div class="card">
-                <div class="list-header">
-                    <h3>전체 부서 목록</h3>
+            <div class="card border border-slate-200 rounded-xl p-6 mb-6">
+                <div class="list-header flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-semibold text-slate-700 border-l-4 border-blue-400 pl-3">
+                        전체 부서 목록
+                    </h3>
                     <button class="btn btn-info">새로고침</button>
                 </div>
-                <div class="loading" id="dept-loading">데이터를 불러오는 중...</div>
-                <table>
+                <div class="loading text-center text-blue-500 font-bold my-5" id="dept-loading">
+                    데이터를 불러오는 중...
+                </div>
+                <table class="w-full border-collapse mt-3">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>부서명</th>
-                            <th>부서 설명</th>
-                            <th>작업</th>
+                        <tr class="bg-slate-50">
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">ID</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">부서명</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">부서 설명</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">작업</th>
                         </tr>
                     </thead>
                     <tbody id="dept-list">
-                        <!-- API 데이터가 여기에 렌더링됨 -->
+                        <!-- API 로드 전 플레이스홀더 — JS가 덮어씁니다 -->
+                        <!-- tbody td 기본 스타일은 src/style.css @layer base 에서 적용됩니다 -->
                         <tr>
                             <td>1</td>
                             <td>HR</td>
                             <td>performs human resource management functions</td>
-                            <td class="actions">
-                                <button class="btn btn-warning">수정</button>
-                                <button class="btn btn-danger">삭제</button>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-warning btn-sm">수정</button>
+                                    <button class="btn btn-danger  btn-sm">삭제</button>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td>2</td>
                             <td>Marketing</td>
                             <td>creates strategies to attract customers</td>
-                            <td class="actions">
-                                <button class="btn btn-warning">수정</button>
-                                <button class="btn btn-danger">삭제</button>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-warning btn-sm">수정</button>
+                                    <button class="btn btn-danger  btn-sm">삭제</button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -105,123 +144,145 @@
             </div>
         </section>
 
-        <!-- 직원 관리 섹션 (P1-2 구현 영역) -->
+        <!-- ══════════════════════════════════════════════════
+             직원 관리 섹션
+             ══════════════════════════════════════════════════ -->
         <section id="emp-section" class="content-section">
-            
+
             <!-- 직원 생성/수정 폼 -->
-            <div class="card">
-                <h3 id="emp-form-title">직원 등록</h3>
+            <div class="card border border-slate-200 rounded-xl p-6 mb-6">
+                <h3 id="emp-form-title"
+                    class="text-lg font-semibold text-slate-700 border-l-4 border-blue-400 pl-3 mb-5">
+                    직원 등록
+                </h3>
                 <form id="emp-form">
-                    <input type="hidden" id="emp-id"> <!-- 수정 시 ID 보관용 -->
-                    <div class="form-inline">
-                        <div class="form-group">
-                            <label for="emp-firstname">이름 (First Name)</label>
-                            <input type="text" id="emp-firstname" placeholder="예: John" required>
+                    <input type="hidden" id="emp-id">
+                    <div class="flex gap-4 flex-wrap mb-4">
+                        <div class="flex-1 min-w-48">
+                            <label for="emp-firstname"
+                                   class="block mb-1.5 font-semibold text-sm text-slate-500">이름 (First Name)</label>
+                            <input type="text" id="emp-firstname" placeholder="예: John" required
+                                   class="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                          focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                          transition-all">
                         </div>
-                        <div class="form-group">
-                            <label for="emp-lastname">성 (Last Name)</label>
-                            <input type="text" id="emp-lastname" placeholder="예: Doe" required>
+                        <div class="flex-1 min-w-48">
+                            <label for="emp-lastname"
+                                   class="block mb-1.5 font-semibold text-sm text-slate-500">성 (Last Name)</label>
+                            <input type="text" id="emp-lastname" placeholder="예: Doe" required
+                                   class="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                          focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                          transition-all">
                         </div>
                     </div>
-                    <div class="form-inline">
-                        <div class="form-group">
-                            <label for="emp-email">이메일</label>
-                            <input type="email" id="emp-email" placeholder="예: john.doe@example.com" required>
+                    <div class="flex gap-4 flex-wrap mb-4">
+                        <div class="flex-1 min-w-48">
+                            <label for="emp-email"
+                                   class="block mb-1.5 font-semibold text-sm text-slate-500">이메일</label>
+                            <input type="email" id="emp-email" placeholder="예: john.doe@example.com" required
+                                   class="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                          focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                          transition-all">
                         </div>
-                        <div class="form-group">
-                            <label for="emp-dept-id">부서</label>
-                            <select id="emp-dept-id" required>
+                        <div class="flex-1 min-w-48">
+                            <label for="emp-dept-id"
+                                   class="block mb-1.5 font-semibold text-sm text-slate-500">부서</label>
+                            <select id="emp-dept-id" required
+                                    class="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                           transition-all appearance-none">
                                 <option value="">부서를 선택하세요...</option>
-                                <!-- JavaScript를 통해 부서 목록이 채워집니다. -->
                             </select>
                         </div>
                     </div>
                     <button type="submit" id="emp-submit-btn" class="btn btn-primary">직원 생성</button>
-                    <button type="button" id="emp-cancel-btn" class="btn btn-info" style="display:none;">취소</button>
+                    <button type="button" id="emp-cancel-btn" class="btn btn-info ml-2" style="display:none;">취소</button>
                 </form>
             </div>
 
             <!-- 직원 단건 조회 -->
-            <div class="card">
-                <h3>직원 조회</h3>
-                <div class="form-inline">
-                    <input type="number" id="search-emp-id" placeholder="ID로 조회" min="1">
+            <div class="card border border-slate-200 rounded-xl p-6 mb-6">
+                <h3 class="text-lg font-semibold text-slate-700 border-l-4 border-blue-400 pl-3 mb-5">
+                    직원 조회
+                </h3>
+                <div class="form-inline flex gap-4 flex-wrap items-end mb-4">
+                    <input type="number" id="search-emp-id" placeholder="ID로 조회" min="1"
+                           class="flex-1 min-w-48 px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                  focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                  transition-all">
                     <button type="button" class="btn btn-success">ID로 조회</button>
                 </div>
-                <div class="form-inline" style="margin-top: 15px;">
-                    <input type="email" id="search-emp-email" placeholder="이메일로 조회">
+                <div class="form-inline flex gap-4 flex-wrap items-end">
+                    <input type="email" id="search-emp-email" placeholder="이메일로 조회"
+                           class="flex-1 min-w-48 px-3 py-2.5 border border-slate-300 rounded-md text-sm bg-white
+                                  focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
+                                  transition-all">
                     <button type="button" class="btn btn-success">이메일로 조회</button>
                 </div>
-                <div id="emp-detail-result" style="margin-top: 15px; display: none;">
-                    <!-- 조회 결과가 여기에 표시됨 -->
+                <div id="emp-detail-result" style="display:none;"
+                     class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200
+                            text-sm text-slate-700 leading-7">
                 </div>
             </div>
 
             <!-- 직원 목록 -->
-            <div class="card">
-                <div class="list-header">
-                    <h3>전체 직원 목록</h3>
-                    <div>
-                        <button class="btn btn-secondary" title="직원과 부서 정보를 함께 조회합니다.">직원+부서 조회</button>
+            <div class="card border border-slate-200 rounded-xl p-6 mb-6">
+                <div class="list-header flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-semibold text-slate-700 border-l-4 border-blue-400 pl-3">
+                        전체 직원 목록
+                    </h3>
+                    <div class="flex gap-2">
+                        <button class="btn btn-secondary"
+                                title="직원과 부서 정보를 함께 조회합니다.">직원+부서 조회</button>
                         <button class="btn btn-info">새로고침</button>
                     </div>
                 </div>
-                <div class="loading" id="emp-loading">데이터를 불러오는 중...</div>
-                <table>
+                <div class="loading text-center text-blue-500 font-bold my-5" id="emp-loading">
+                    데이터를 불러오는 중...
+                </div>
+                <table class="w-full border-collapse mt-3">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>이름</th>
-                            <th>성</th>
-                            <th>이메일</th>
-                            <th>부서 ID</th>
-                            <th>작업</th>
+                        <tr class="bg-slate-50">
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">ID</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">이름</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">성</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">이메일</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">부서 ID</th>
+                            <th class="text-left px-4 py-3 text-slate-600 font-semibold text-sm border-b border-slate-200">작업</th>
                         </tr>
                     </thead>
                     <tbody id="emp-list">
-                        <!-- API 데이터가 여기에 렌더링됨 -->
                         <tr>
-                            <td colspan="6" style="text-align: center; color: #999;">직원 데이터를 불러오세요.</td>
+                            <td colspan="6"
+                                class="px-4 py-3 text-center text-slate-400">직원 데이터를 불러오세요.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-    </div>
 
-    <!-- ================================================== -->
-    <!-- [v4.0] Vite 빌드 도구 방식으로 변경된 스크립트    -->
-    <!--                                                    -->
-    <!-- 변경 전 (v3.0):                                    -->
-    <!--   <script type="module" src="js/dept_runner_v2.js"> -->
-    <!--   <script type="module" src="js/emp_runner_v2.js">  -->
-    <!--                                                    -->
-    <!-- 변경 후 (v4.0 Vite):                               -->
-    <!--   <script type="module" src="/src/main.js">         -->
-    <!--   └─ import './style.css'          ← CSS 통합       -->
-    <!--   └─ import './js/dept_runner_v2.js'               -->
-    <!--   └─ import './js/emp_runner_v2.js'                -->
-    <!-- ================================================== -->
+    </div><!-- /container -->
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- [v4.0 Vite] 스크립트                                    -->
+    <!-- ════════════════════════════════════════════════════════ -->
 
     <!-- 탭 전환 스크립트 (일반 스크립트 - 전역 함수로 유지) -->
     <script>
         function showTab(sectionId) {
-            // 모든 탭 컨텐츠 숨기기 및 탭 버튼 비활성화
             document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            // 클릭된 탭 활성화
             document.getElementById(sectionId).classList.add('active');
             event.currentTarget.classList.add('active');
 
-            // '직원 관리' 탭을 처음 클릭했을 때 초기화
             if (sectionId === 'emp-section') {
                 if (typeof initEmployeeTab === 'function') initEmployeeTab();
             }
         }
     </script>
 
-    <!-- [v4.0 Vite] 단일 엔트리 포인트 -->
-    <!--   CSS + 부서 관리 + 직원 관리 모두 src/main.js 한 파일에서 import  -->
+    <!-- Vite 단일 엔트리 포인트: CSS import + 모듈 로딩 -->
     <script type="module" src="/src/main.js"></script>
+
 </body>
 </html>

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee & Department Manager</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- CSS는 src/main.js 에서 import './style.css' 로 처리합니다. -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
 </head>
 <body>
 
@@ -189,16 +190,17 @@
     </div>
 
     <!-- ================================================== -->
-    <!-- [v2.0] ES Module 방식으로 변경된 스크립트 로딩      -->
+    <!-- [v4.0] Vite 빌드 도구 방식으로 변경된 스크립트    -->
     <!--                                                    -->
-    <!-- 변경 전 (v1.0):                                    -->
-    <!--   <script src="department.js"></script>  ← 일반 스크립트 -->
+    <!-- 변경 전 (v3.0):                                    -->
+    <!--   <script type="module" src="js/dept_runner_v2.js"> -->
+    <!--   <script type="module" src="js/emp_runner_v2.js">  -->
     <!--                                                    -->
-    <!-- 변경 후 (v2.0):                                    -->
-    <!--   type="module" 필수! (import/export 사용을 위해)  -->
-    <!--   파일 경로: js/dept_runner_v1.js                  -->
-    <!--   └─ import departmentApi.js (버전 1 함수형)       -->
-    <!--   └─ import utils.js                              -->
+    <!-- 변경 후 (v4.0 Vite):                               -->
+    <!--   <script type="module" src="/src/main.js">         -->
+    <!--   └─ import './style.css'          ← CSS 통합       -->
+    <!--   └─ import './js/dept_runner_v2.js'               -->
+    <!--   └─ import './js/emp_runner_v2.js'                -->
     <!-- ================================================== -->
 
     <!-- 탭 전환 스크립트 (일반 스크립트 - 전역 함수로 유지) -->
@@ -218,34 +220,8 @@
         }
     </script>
 
-    <!-- [v2.0] 부서 관리: ES Module 방식 (departmentApi.js 버전 1 함수형 사용) -->
-    <!-- <script type="module" src="js/dept_runner_v1.js"></script> -->
-
-    <!-- [v2.0] 직원 관리: ES Module 방식 (employeeApi.js 버전 1 함수형 사용) -->
-    <!--                                                                      -->
-    <!-- 변경 전 (v1.0):                                                      -->
-    <!--   <script src="employee.js"></script>  ← 일반 스크립트               -->
-    <!--                                                                      -->
-    <!-- 변경 후 (v2.0):                                                      -->
-    <!--   type="module" 필수! (import/export 사용을 위해)                    -->
-    <!--   파일 경로: js/emp_runner_v1.js                                     -->
-    <!--   └─ import employeeApi.js  (버전 1 함수형)                          -->
-    <!--   └─ import departmentApi.js (버전 1 함수형) - 부서 드롭다운용        -->
-    <!--   └─ import utils.js                                                 -->
-    <!--   └─ window.initEmployeeTab 전역 등록 (showTab에서 호출)              -->
-    <!-- <script type="module" src="js/emp_runner_v1.js"></script> -->
-
-    <!-- [v3.0] 부서 관리: ES Module 방식 (departmentApi.js 버전 2 클래스형 사용) -->
-    <!--   └─ import { DepartmentApi } from departmentApi.js                    -->
-    <!--   └─ const departmentApi = new DepartmentApi()                         -->
-    <script type="module" src="js/dept_runner_v2.js"></script>
-
-    <!-- [v3.0] 직원 관리: ES Module 방식 (employeeApi.js 버전 2 클래스형 사용) -->
-    <!--   └─ import { EmployeeApi }   from employeeApi.js                      -->
-    <!--   └─ import { DepartmentApi } from departmentApi.js                    -->
-    <!--   └─ const employeeApi   = new EmployeeApi()                           -->
-    <!--   └─ const departmentApi = new DepartmentApi()                         -->
-    <!--   └─ window.initEmployeeTab 전역 등록 (showTab에서 호출)               -->
-    <script type="module" src="js/emp_runner_v2.js"></script>
+    <!-- [v4.0 Vite] 단일 엔트리 포인트 -->
+    <!--   CSS + 부서 관리 + 직원 관리 모두 src/main.js 한 파일에서 import  -->
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>

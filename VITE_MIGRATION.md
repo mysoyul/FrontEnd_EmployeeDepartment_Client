@@ -279,7 +279,94 @@ sourcemap: true 설정으로 브라우저 개발자 도구에서
 
 ---
 
-## 8. Vite 이후 다음 단계
+## 8. 환경 변수(Environment Variables) 설정
+
+### 8-1. 왜 환경 변수가 필요한가?
+
+```
+문제: API URL이 코드 안에 하드코딩되어 있으면
+      개발 서버(localhost)와 운영 서버(https://api.example.com)를
+      배포할 때마다 코드를 직접 수정해야 합니다.
+
+해결: .env 파일에 URL을 분리하면
+      코드 변경 없이 환경별로 다른 URL을 자동으로 사용할 수 있습니다.
+```
+
+### 8-2. 추가된 파일
+
+```
+level1_html_css_js/
+├── .env.development    ← NEW: 개발 환경 설정 (npm run dev 시 로드)
+├── .env.production     ← NEW: 운영 환경 설정 (npm run build 시 로드)
+└── src/
+    ├── config.js       ← NEW: 환경 변수를 읽어 앱에 제공하는 설정 모듈
+    └── js/
+        └── api/
+            ├── departmentApi.js  ← 수정: config.js에서 URL 가져오도록 변경
+            └── employeeApi.js    ← 수정: config.js에서 URL 가져오도록 변경
+```
+
+### 8-3. `.env.development` — 개발 환경
+
+```bash
+# npm run dev 실행 시 자동 로드
+VITE_API_BASE_URL=http://localhost:8080
+VITE_APP_ENV_LABEL=개발 서버
+```
+
+### 8-4. `.env.production` — 운영 환경
+
+```bash
+# npm run build 실행 시 자동 로드
+VITE_API_BASE_URL=https://api.example.com
+VITE_APP_ENV_LABEL=운영 서버
+```
+
+### 8-5. Vite 환경 변수 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| `VITE_` 접두사 필수 | `VITE_`로 시작해야만 브라우저 코드에 노출됩니다 |
+| `import.meta.env.VITE_*` | 브라우저 코드에서 접근하는 방법 |
+| 컴파일 타임 치환 | 빌드 시 실제 값으로 대체됩니다 (런타임이 아님) |
+| 우선순위 | `.env` < `.env.development` < `.env.development.local` |
+
+### 8-6. `src/config.js` — 중앙 설정 모듈
+
+```javascript
+// 환경 변수를 읽어 하나의 객체로 내보냅니다
+const config = {
+    apiBaseUrl: import.meta.env.VITE_API_BASE_URL,  // API 서버 URL
+    mode:       import.meta.env.MODE,                // 'development' | 'production'
+    isDev:      import.meta.env.DEV,                 // 개발 서버 실행 중 여부
+    envLabel:   import.meta.env.VITE_APP_ENV_LABEL,  // UI 표시용 레이블
+};
+
+export default config;
+```
+
+### 8-7. API 파일 변경 전후 비교
+
+```javascript
+// ── 변경 전 (하드코딩) ──────────────────────────────────────────
+const BASE_URL = 'http://localhost:8080/api/departments';  // 운영 배포 시 직접 수정 필요
+
+// ── 변경 후 (환경 변수 사용) ────────────────────────────────────
+import config from '../../config.js';
+const BASE_URL = `${config.apiBaseUrl}/api/departments`;  // 환경에 따라 자동 변경
+```
+
+### 8-8. 환경별 동작 요약
+
+| 명령어 | 로드되는 .env | `config.apiBaseUrl` 값 |
+|--------|---------------|------------------------|
+| `npm run dev` | `.env.development` | `http://localhost:8080` |
+| `npm run build` | `.env.production` | `https://api.example.com` |
+| `npm run preview` | `.env.production` | `https://api.example.com` |
+
+---
+
+## 9. Vite 이후 다음 단계
 
 ```
 현재 (v4.0 Vite Vanilla JS)

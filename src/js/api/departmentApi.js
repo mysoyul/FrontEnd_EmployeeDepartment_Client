@@ -22,9 +22,15 @@
 // 필요한 함수만 골라서 가져오는 방식을 "named import"라고 합니다.
 import { handleApiError, checkResponse } from '../utils.js';
 
+// [import] 환경별 설정을 config.js에서 가져옵니다.
+// config.apiBaseUrl: 개발 환경 → http://localhost:8080
+//                   운영 환경 → https://api.example.com
+import config from '../../config.js';
+
 // [const] 재할당이 없는 값은 const로 선언합니다. (var 사용 금지)
 // 부서 API의 기본 URL - 두 버전에서 공통으로 사용합니다.
-const BASE_URL = 'http://localhost:8080/api/departments';
+// config.js를 통해 환경에 따라 다른 URL을 사용합니다.
+const BASE_URL = `${config.apiBaseUrl}/api/departments`;
 
 
 // ============================================================
@@ -215,7 +221,8 @@ export class DepartmentApi {
     //
     // v1.0 방식: const API_BASE_URL = '...'  ← 전역에서 누구나 접근 가능
     // v2.0 방식: #baseUrl = '...'            ← 클래스 내부에서만 접근 가능
-    #baseUrl = 'http://localhost:8080/api/departments';
+    // config.js를 통해 환경에 따라 다른 URL을 사용합니다.
+    #baseUrl = `${config.apiBaseUrl}/api/departments`;
 
 
     // ─── 메서드 (Methods) ─────────────────────────────────────────

@@ -28,10 +28,16 @@
 // v2.0: import로 명시적으로 가져오기 때문에 의존 관계가 명확합니다.
 import { handleApiError, checkResponse } from '../utils.js';
 
+// [import] 환경별 설정을 config.js에서 가져옵니다.
+// config.apiBaseUrl: 개발 환경 → http://localhost:8080
+//                   운영 환경 → https://api.example.com
+import config from '../../config.js';
+
 // [const] 직원 API의 기본 URL — 두 버전에서 공통으로 사용합니다.
 // v1.0: API_BASE_URL (전역, department.js에 선언) 에 '/employees' 를 붙여서 사용
 // v2.0: 직원 전용 BASE_URL을 이 파일 안에서 독립적으로 관리합니다.
-const BASE_URL = 'http://localhost:8080/api/employees';
+// config.js를 통해 환경에 따라 다른 URL을 사용합니다.
+const BASE_URL = `${config.apiBaseUrl}/api/employees`;
 
 
 // ============================================================
@@ -267,7 +273,8 @@ export class EmployeeApi {
     //
     // 외부에서 employeeApi.#baseUrl 로 접근하면 SyntaxError 발생!
     // → URL을 실수로 변경하는 것을 원천 차단합니다.
-    #baseUrl = 'http://localhost:8080/api/employees';
+    // config.js를 통해 환경에 따라 다른 URL을 사용합니다.
+    #baseUrl = `${config.apiBaseUrl}/api/employees`;
 
 
     // ─── 메서드 (Methods) ─────────────────────────────────────────

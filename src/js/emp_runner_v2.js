@@ -217,17 +217,29 @@ const resetEmpForm = () => {
 
 /**
  * 수정 모드로 폼을 설정합니다.
- * [Destructuring] { id, firstName, lastName, email, departmentId } = employee
+ * [Destructuring] { id, firstName, lastName, email, departmentId, departmentDto } = employee
  * @param {object} employee
  */
 const setupEmpEditForm = (employee) => {
-    const { id, firstName, lastName, email, departmentId } = employee;
+    const { id, firstName, lastName, email, departmentId, departmentDto } = employee;
+
+    // ── 부서 ID 결정 ─────────────────────────────────────────────────────
+    // 목록 종류에 따라 API 응답 구조가 다릅니다.
+    //
+    // [일반 목록]       GET /api/employees           → { departmentId: 2 }
+    // [직원+부서 조회]  GET /api/employees/departments → { departmentDto: { id: 2, ... } }
+    //                                                    (departmentId 필드 없음)
+    //
+    // [Nullish Coalescing ??] departmentId 가 null/undefined 이면 departmentDto.id 를 사용합니다.
+    // [Optional Chaining ?.]  departmentDto 자체가 없을 수도 있으므로 안전하게 접근합니다.
+    // [String()]              select.value 비교는 문자열 기준이므로 명시적으로 변환합니다.
+    const deptId = departmentId ?? departmentDto?.id;
 
     empIdInput.value        = id;
     empFirstNameInput.value = firstName;
     empLastNameInput.value  = lastName;
     empEmailInput.value     = email;
-    empDeptIdSelect.value   = departmentId;
+    empDeptIdSelect.value   = String(deptId ?? '');
 
     empFormTitle.textContent   = '직원 수정';
     empSubmitBtn.textContent   = '수정 저장';
@@ -421,7 +433,7 @@ const initEmployeeTab = async () => {
     // 직원 목록 첫 로드
     await loadAndRenderEmployees();
 
-    // 이벤트 리스너 7개 등록
+    // 이벤트 리스너 등록
     empForm.addEventListener('submit', handleEmpFormSubmit);
     empCancelBtn.addEventListener('click', resetEmpForm);
     searchEmpIdBtn.addEventListener('click', handleSearchEmpById);
@@ -429,6 +441,17 @@ const initEmployeeTab = async () => {
     empListBody.addEventListener('click', handleEmpListClick);
     empRefreshBtn.addEventListener('click', loadAndRenderEmployees);
     empWithDeptBtn.addEventListener('click', loadAndRenderEmployeesWithDept);
+
+    // ID / 이메일 검색 필드 상호 초기화
+    // 한 필드에 포커스를 주면 다른 필드와 조회 결과를 초기화합니다.
+    searchEmpIdInput.addEventListener('focus', () => {
+        searchEmpEmailInput.value = '';
+        empDetailResult.style.display = 'none';
+    });
+    searchEmpEmailInput.addEventListener('focus', () => {
+        searchEmpIdInput.value = '';
+        empDetailResult.style.display = 'none';
+    });
 
     isInitialized = true;
     console.log('[emp_runner_v2] 직원 탭 초기화 완료');

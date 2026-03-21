@@ -51,3 +51,5 @@
 * 직원 조회 (ID로 조회 또는 이메일로 조회) 에서 예를 들어 ID 1번으로 조회 후 결과가 나온 후에  이메일로 조회 필드에 포커스를 주면 ID 조회 입력필드가 1로 되어 있는 부분을 1이 아니라 초기 상태로 되도록 수정해야 할것 같습니다. 
 
 * 현재 프로젝트를 Vite 기반 ECMAScript로 작성하는 ReactJS 프로젝트로 변경하고 싶어요. PRD_Employee_Department_Client_React_v3_Level1.md 문서를 생성하고 사용하지 않는 js 파일들은 src/org_js 폴더에 정리하고 싶어요 삭제하지는 마세요. 저는 ReactJS를 처음 사용합니다. 이해하기 쉽도록 작성해 주세요.
+
+* ECMAScript 프로젝트를 쉬운 버전의 ReactJS 프로젝트로 변환한 내용을 정리해서 markdown 문서로 작성해 주세요.

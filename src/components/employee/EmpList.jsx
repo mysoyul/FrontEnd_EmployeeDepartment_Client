@@ -4,20 +4,29 @@
  * ─── 이 컴포넌트가 하는 일 ────────────────────────────────────────────
  *  직원 배열을 받아 테이블 행으로 렌더링합니다.
  *  withDept 여부에 따라 5번째 컬럼이 "부서 ID" 또는 "부서명"으로 바뀝니다.
+ *  테이블 아래에 Pagination 컴포넌트를 렌더링합니다.
  *
  * ─── props ────────────────────────────────────────────────────────────
- *  employees          : 직원 배열
+ *  employees          : 직원 배열 (현재 페이지 데이터)
  *  loading            : true이면 로딩 중 표시
- *  withDept           : true = 직원+부서 조회 결과 / false = 일반 조회 결과
+ *  withDept           : true = 직원+부서 조회 결과 / false = 페이징 조회 결과
+ *  currentPage        : 현재 페이지 번호 (0부터)
+ *  totalPages         : 전체 페이지 수
+ *  onPageChange       : 페이지 버튼 클릭 시 호출
  *  onEdit             : 수정 버튼 클릭 → 해당 직원 객체를 editingEmp로 설정
  *  onDelete           : 삭제 버튼 클릭 → id 전달
  *  onRefresh          : 새로고침 버튼 클릭
  *  onRefreshWithDept  : 직원+부서 조회 버튼 클릭
  */
+import Pagination from '../common/Pagination.jsx';
+
 export default function EmpList({
     employees,
     loading,
     withDept,
+    currentPage,
+    totalPages,
+    onPageChange,
     onEdit,
     onDelete,
     onRefresh,
@@ -106,6 +115,19 @@ export default function EmpList({
                     )}
                 </tbody>
             </table>
+
+            {/*
+                페이징 버튼 영역
+                - withDept=true(직원+부서 전체 조회)일 때는 페이징 불필요 → null 반환
+                - Pagination 내부에서 totalPages <= 1이면 자동으로 숨김
+            */}
+            {!withDept && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            )}
         </div>
     );
 }

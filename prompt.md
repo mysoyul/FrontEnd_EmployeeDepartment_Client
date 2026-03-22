@@ -53,3 +53,5 @@
 * 현재 프로젝트를 Vite 기반 ECMAScript로 작성하는 ReactJS 프로젝트로 변경하고 싶어요. PRD_Employee_Department_Client_React_v3_Level1.md 문서를 생성하고 사용하지 않는 js 파일들은 src/org_js 폴더에 정리하고 싶어요 삭제하지는 마세요. 저는 ReactJS를 처음 사용합니다. 이해하기 쉽도록 작성해 주세요.
 
 * ECMAScript 프로젝트를 쉬운 버전의 ReactJS 프로젝트로 변환한 내용을 정리해서 markdown 문서로 작성해 주세요.
+
+* 저는 React 초보자입니다. 현재 프로젝트에 페이징 처리기능과 상태관리 라이브러리(Zustand)를 추가하고 싶어요. 어떤 기능을 먼저 추가하는 것이 더 이해하기 쉬울까요?

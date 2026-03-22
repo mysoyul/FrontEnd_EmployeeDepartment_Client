@@ -16,8 +16,8 @@
 
 ### 구현 범위
 
-- 직원 목록 (`EmpSection` / `EmpList`) — 페이지당 5개, 정렬 지원
-- 부서 목록 (`DeptSection` / `DeptList`) — 페이지당 5개, 정렬 지원
+- 직원 목록 (`EmpSection` / `EmpList`) — 페이지당 5개, 부서명 클라이언트 조인
+- 부서 목록 (`DeptSection` / `DeptList`) — 페이지당 5개
 - 공통 페이지 버튼 컴포넌트 (`Pagination.jsx`) 신규 생성
 
 ---
@@ -29,9 +29,9 @@
 | `src/components/common/Pagination.jsx` | **신규 생성** — 이전/번호/다음 버튼 공통 컴포넌트 |
 | `src/api/employeeApi.js` | `getPage()` 메서드 추가 |
 | `src/api/departmentApi.js` | `getPage()` 메서드 추가 |
-| `src/components/employee/EmpSection.jsx` | 페이징 상태 + 로직 추가 |
-| `src/components/employee/EmpList.jsx` | `<Pagination>` 렌더링 추가 |
-| `src/components/department/DeptSection.jsx` | 페이징 상태 + 로직 추가 |
+| `src/components/employee/EmpSection.jsx` | 페이징 상태 추가, `withDept` 제거, `departments`를 EmpList에 전달 |
+| `src/components/employee/EmpList.jsx` | 클라이언트 조인으로 부서명 표시, `withDept` 제거, `<Pagination>` 추가 |
+| `src/components/department/DeptSection.jsx` | 페이징 상태 추가, `allDepartments`/`pagedDepts` 분리 |
 | `src/components/department/DeptList.jsx` | `<Pagination>` 렌더링 추가 |
 
 ---
@@ -175,26 +175,36 @@ disabled={currentPage === totalPages - 1}
 
 ## 6. EmpSection.jsx — 직원 페이징 상태 및 로직
 
-### 페이징 상태 4개
+### 상태 목록
 
 ```jsx
-const [currentPage, setCurrentPage] = useState(0);     // 현재 페이지 (0부터)
-const [totalPages,  setTotalPages]  = useState(1);     // 전체 페이지 수
-const [sortBy,      setSortBy]      = useState('id');  // 정렬 컬럼
-const [sortDir,     setSortDir]     = useState('asc'); // 정렬 방향
+// 기존 상태 (변경 없음)
+const [employees,   setEmployees]   = useState([]);
+const [departments, setDepartments] = useState([]); // EmpForm + EmpList 부서명 조인 두 곳에 사용
+const [loading,     setLoading]     = useState(false);
+const [editingEmp,  setEditingEmp]  = useState(null);
+
+// 페이징 상태 (신규)
+const [currentPage, setCurrentPage] = useState(0);
+const [totalPages,  setTotalPages]  = useState(1);
+const [sortBy,      setSortBy]      = useState('id');
+const [sortDir,     setSortDir]     = useState('asc');
 ```
 
-### useEffect 두 개의 역할 비교
+> `withDept` 상태는 **제거**되었습니다.
+> "직원+부서 조회" 버튼 없이도 클라이언트 조인으로 항상 부서명을 표시합니다.
+
+### useEffect 두 개의 역할
 
 ```jsx
-// [1] 마운트 시 딱 1번: EmpForm의 select 드롭다운용 부서 목록 로드
+// [1] 마운트 시 딱 1번: 부서 전체 목록 로드
+//     → EmpForm select 드롭다운 + EmpList 부서명 조인 두 곳에서 사용
 useEffect(() => {
     loadDepartments();
 }, []);
 
 // [2] 페이지·정렬이 바뀔 때마다: 직원 목록 재조회
 useEffect(() => {
-    if (withDept) return; // 직원+부서 전체 조회 모드이면 건너뜀
     loadEmployeesPage(currentPage);
 }, [currentPage, sortBy, sortDir]);
 ```
@@ -204,11 +214,9 @@ useEffect(() => {
 ```jsx
 const loadEmployeesPage = async (pageNo = 0) => {
     setLoading(true);
-    setWithDept(false);
     try {
-        // getPage() 호출 — sortBy, sortDir은 컴포넌트 상태에서 읽습니다.
         const data = await employeeApi.getPage({ pageNo, pageSize: 5, sortBy, sortDir });
-        setEmployees(data.content);     // ← 테이블에 표시할 데이터
+        setEmployees(data.content);     // ← 테이블에 표시할 데이터 (departmentDto는 null)
         setTotalPages(data.totalPages); // ← 페이지 버튼 개수
     } catch (err) {
         showToast(err.message || '직원 목록 로드 실패', true);
@@ -222,65 +230,177 @@ const loadEmployeesPage = async (pageNo = 0) => {
 
 ```jsx
 // 생성/수정 후 → 1페이지(0)로 이동
-// (이미 0페이지이면 useEffect가 재실행되지 않으므로 직접 호출)
+// 이미 0페이지이면 setCurrentPage(0)은 값이 안 바뀌므로 useEffect가 실행되지 않습니다.
+// 그래서 직접 호출합니다.
 if (currentPage === 0) {
-    await loadEmployeesPage(0);
+    await loadEmployeesPage(0);   // 직접 호출
 } else {
-    setCurrentPage(0); // useEffect가 자동으로 loadEmployeesPage 호출
+    setCurrentPage(0);            // useEffect가 자동으로 loadEmployeesPage 호출
 }
 
 // 삭제 후 → 현재 페이지 새로고침 (페이지 이동 없이)
 await loadEmployeesPage(currentPage);
 ```
 
-### handlePageChange
-
-```jsx
-// Pagination 컴포넌트에서 버튼 클릭 시 호출됩니다.
-// setCurrentPage()만 호출하면 useEffect가 알아서 API를 재호출합니다.
-const handlePageChange = (pageNo) => {
-    setCurrentPage(pageNo);
-};
-```
-
 ---
 
-## 7. EmpList.jsx — Pagination 컴포넌트 연결
+## 7. EmpList.jsx — 클라이언트 조인으로 부서명 표시
+
+### 변경 전 vs 변경 후
+
+| 항목 | 변경 전 | 변경 후 |
+|------|---------|---------|
+| 부서명 표시 방법 | "직원+부서 조회" 버튼 → 별도 API 호출 | `departments` 배열에서 직접 찾기 |
+| `withDept` 상태 | 있음 (true/false 분기 처리) | **제거** |
+| "직원+부서 조회" 버튼 | 있음 | **제거** |
+| 페이지 버튼 표시 | `withDept=false`일 때만 | **항상 표시** |
+| 부서 컬럼 헤더 | `withDept`에 따라 "부서 ID" / "부서명" 전환 | **항상 "부서명"** |
 
 ### 변경된 props 목록
 
 ```jsx
-// 기존 props (변경 없음)
-employees, loading, withDept, onEdit, onDelete, onRefresh, onRefreshWithDept
+// 제거된 props
+withDept,          // 더 이상 필요 없음
+onRefreshWithDept, // "직원+부서 조회" 버튼 제거로 불필요
 
-// 새로 추가된 props
+// 추가된 props
+departments,   // 전체 부서 목록 — 부서명 클라이언트 조인에 사용
 currentPage,   // 현재 페이지 (Pagination에 전달)
 totalPages,    // 전체 페이지 수 (Pagination에 전달)
 onPageChange,  // 페이지 클릭 핸들러 (Pagination에 전달)
 ```
 
-### 테이블 아래 Pagination 렌더링
+### 핵심 코드 — 클라이언트 조인
 
 ```jsx
-{/*
-    withDept=true(직원+부서 전체 조회)일 때는 페이징 숨김
-    withDept=false(일반 페이징 조회)일 때만 페이징 표시
-*/}
-{!withDept && (
-    <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
-    />
-)}
+employees.map(emp => {
+    const deptName = departments
+        .find(d => d.id === emp.departmentId)
+        ?.departmentName
+        ?? 'N/A';
+
+    return <tr key={emp.id}>...<td>{deptName}</td>...</tr>;
+})
 ```
 
-> `withDept=true` 모드는 `getAllWithDepartments()`로 전체 목록을 한 번에 가져오므로
-> 페이징이 필요 없습니다.
+이 3줄 코드에서 자바스크립트 연산자 3개가 사용됩니다.
+자세한 설명은 아래 **섹션 8**을 참고하세요.
 
 ---
 
-## 8. DeptSection.jsx — 부서 페이징 특이사항
+## 8. 핵심 코드 해설 — find() / ?. / ??
+
+### 문제 상황
+
+`GET /api/employees/page` 응답의 직원 데이터는 아래처럼 생겼습니다.
+
+```json
+{ "id": 5, "firstName": "Alice", "departmentId": 2, "departmentDto": null }
+```
+
+`departmentDto`가 `null`이므로 부서명을 직접 알 수 없습니다.
+하지만 `departmentId: 2`는 있습니다.
+
+이미 로드된 `departments` 배열에서 `id === 2`인 부서를 찾으면 부서명을 알 수 있습니다.
+
+```js
+departments = [
+    { id: 1, departmentName: '인사팀', ... },
+    { id: 2, departmentName: '개발팀', ... },  // ← 이걸 찾으면 됩니다
+    { id: 3, departmentName: '영업팀', ... },
+]
+```
+
+---
+
+### ① Array.find() — 조건에 맞는 첫 번째 요소 찾기
+
+```js
+departments.find(d => d.id === emp.departmentId)
+```
+
+`find()`는 배열을 앞에서부터 하나씩 확인하면서, 조건(`d.id === emp.departmentId`)이
+**처음으로 `true`가 되는 요소**를 반환합니다.
+
+```js
+// emp.departmentId = 2 라면
+departments.find(d => d.id === 2)
+// → { id: 2, departmentName: '개발팀', departmentDescription: '...' }
+
+// emp.departmentId = 99 라면 (없는 ID)
+departments.find(d => d.id === 99)
+// → undefined   ← 조건에 맞는 요소가 없으면 undefined 반환
+```
+
+---
+
+### ② ?. (옵셔널 체이닝, Optional Chaining) — 안전하게 속성 접근
+
+```js
+departments.find(d => d.id === emp.departmentId)?.departmentName
+```
+
+`find()`가 `undefined`를 반환했을 때 `.departmentName`을 그냥 쓰면 에러가 납니다.
+
+```js
+// ❌ 위험한 코드 — undefined.departmentName → TypeError!
+departments.find(d => d.id === 99).departmentName
+
+// ✅ 안전한 코드 — undefined?.departmentName → 에러 없이 undefined 반환
+departments.find(d => d.id === 99)?.departmentName
+```
+
+`?.`의 동작 원리는 아래 표로 정리할 수 있습니다.
+
+| `find()` 결과 | `?.departmentName` 결과 |
+|--------------|------------------------|
+| `{ departmentName: '개발팀', ... }` (찾음) | `'개발팀'` |
+| `undefined` (못 찾음) | `undefined` (에러 없음) |
+
+> 한 마디로: `?.`는 **"앞이 null/undefined이면 멈추고 undefined를 반환해"** 라는 뜻입니다.
+
+---
+
+### ③ ?? (널 병합 연산자, Nullish Coalescing) — 기본값 설정
+
+```js
+departments.find(d => d.id === emp.departmentId)?.departmentName ?? 'N/A'
+```
+
+`??`는 왼쪽 값이 `null` 또는 `undefined`일 때만 오른쪽 기본값을 사용합니다.
+
+```js
+'개발팀'   ?? 'N/A'  // → '개발팀'   (값이 있으므로 그대로 사용)
+undefined  ?? 'N/A'  // → 'N/A'     (undefined이므로 기본값 사용)
+null       ?? 'N/A'  // → 'N/A'     (null이므로 기본값 사용)
+```
+
+> `||`(OR 연산자)와 비슷하지만 다릅니다.
+> `||`는 `0`, `''`(빈 문자열), `false`도 falsy로 취급해서 기본값으로 넘어갑니다.
+> `??`는 오직 `null`과 `undefined`일 때만 기본값으로 넘어갑니다.
+
+---
+
+### 세 연산자 합쳐서 한 번에 읽기
+
+```js
+const deptName = departments
+    .find(d => d.id === emp.departmentId)  // ① id가 같은 부서를 찾는다
+    ?.departmentName                        // ② 찾았으면 부서명을, 못 찾았으면 undefined를
+    ?? 'N/A';                              // ③ undefined이면 'N/A'를 최종값으로
+```
+
+```
+departments에서 id=2인 부서를 찾는다
+  │
+  ├─ 찾았다  → { departmentName: '개발팀' }?.departmentName → '개발팀' ?? 'N/A' → '개발팀'
+  │
+  └─ 못 찾았다 → undefined?.departmentName → undefined ?? 'N/A' → 'N/A'
+```
+
+---
+
+## 9. DeptSection.jsx — 부서 페이징 특이사항
 
 ### allDepartments vs pagedDepts 분리
 
@@ -310,7 +430,7 @@ const [pagedDepts,     setPagedDepts]     = useState([]); // 테이블용
 
 ---
 
-## 9. 전체 데이터 흐름
+## 10. 전체 데이터 흐름
 
 ```
 [사용자: 페이지 2 버튼 클릭]
@@ -332,32 +452,37 @@ loadEmployeesPage(1)
   → GET /api/employees/page?pageNo=1&pageSize=5&sortBy=id&sortDir=asc
   │
   ▼
-서버 응답 { content: [...5개], totalPages: 5, ... }
+서버 응답 { content: [...5개, departmentDto: null], totalPages: 5 }
   │
-  ├─ setEmployees(data.content)   → EmpList 테이블 갱신
+  ├─ setEmployees(data.content)     → EmpList에 직원 5명 전달
   └─ setTotalPages(data.totalPages) → Pagination 버튼 유지
   │
   ▼
-[화면: 2페이지 직원 5명 표시, 2번 버튼 강조]
+EmpList.jsx — 각 행 렌더링 시 클라이언트 조인 실행
+  departments.find(d => d.id === emp.departmentId)?.departmentName ?? 'N/A'
+  → 이미 로드된 departments 배열에서 부서명 찾기 (추가 API 호출 없음)
+  │
+  ▼
+[화면: 2페이지 직원 5명 + 부서명 표시, 2번 버튼 강조]
 ```
 
 ---
 
-## 10. 컴포넌트 props 전달 구조
+## 11. 컴포넌트 props 전달 구조
 
 ```
 App.jsx
-  └─ EmpSection.jsx  (페이징 상태 보관: currentPage, totalPages)
-       ├─ EmpForm.jsx
+  └─ EmpSection.jsx  (상태 보관: employees, departments, currentPage, totalPages)
+       ├─ EmpForm.jsx       ← departments (select 드롭다운용)
        ├─ EmpSearch.jsx
-       └─ EmpList.jsx  (props로 페이징 상태 수신)
-            └─ Pagination.jsx  (props: currentPage, totalPages, onPageChange)
+       └─ EmpList.jsx       ← employees, departments, currentPage, totalPages, onPageChange
+            └─ Pagination.jsx  ← currentPage, totalPages, onPageChange
 
 App.jsx
-  └─ DeptSection.jsx  (페이징 상태 보관: currentPage, totalPages)
+  └─ DeptSection.jsx  (상태 보관: allDepartments, pagedDepts, currentPage, totalPages)
        ├─ DeptForm.jsx
-       ├─ DeptSearch.jsx  (allDepartments 수신)
-       └─ DeptList.jsx    (pagedDepts 수신)
+       ├─ DeptSearch.jsx  ← allDepartments (전체 목록)
+       └─ DeptList.jsx    ← pagedDepts (현재 페이지), currentPage, totalPages, onPageChange
             └─ Pagination.jsx
 ```
 
@@ -365,7 +490,7 @@ App.jsx
 
 ---
 
-## 11. 주의사항
+## 12. 주의사항
 
 | 항목 | 설명 |
 |------|------|
@@ -373,17 +498,19 @@ App.jsx
 | **useEffect 무한루프 주의** | `useEffect` 안에서 의존성 배열에 있는 상태를 바꾸면 무한 루프가 됩니다 |
 | **이미 0페이지일 때 새로고침** | `setCurrentPage(0)`은 값이 안 바뀌므로 useEffect가 실행되지 않습니다. 이 경우 `loadEmployeesPage(0)` 직접 호출이 필요합니다 |
 | **DeptSearch 드롭다운** | 페이징하면 드롭다운 옵션도 5개만 나옵니다. `allDepartments`(전체 목록)를 별도로 관리해야 합니다 |
-| **withDept 모드** | "직원+부서 조회" 버튼은 전체를 한 번에 가져오므로 페이징 적용 대상이 아닙니다 |
+| **클라이언트 조인 전제** | `departments`가 로드되기 전에 직원 목록이 먼저 표시되면 부서명이 'N/A'로 잠시 보일 수 있습니다. 두 `useEffect`가 거의 동시에 실행되므로 실제로는 거의 문제가 되지 않습니다 |
 
 ---
 
-## 12. 학습 포인트 요약
+## 13. 학습 포인트 요약
 
 ```
-1. useState   → 페이지 번호·전체 페이지 수를 상태로 관리
-2. useEffect  → 상태가 바뀌면 자동으로 API 재호출 (의존성 배열 핵심)
-3. props      → Section이 가진 상태를 List → Pagination으로 내려줌
-4. 조건부 렌더링 → {!withDept && <Pagination />}
+1. useState      → 페이지 번호·전체 페이지 수를 상태로 관리
+2. useEffect     → 상태가 바뀌면 자동으로 API 재호출 (의존성 배열 핵심)
+3. props         → Section이 가진 상태를 List → Pagination으로 내려줌
+4. Array.find()  → 배열에서 조건에 맞는 요소 찾기 (클라이언트 조인)
+5. ?.            → null/undefined일 때 에러 없이 안전하게 속성 접근
+6. ??            → null/undefined일 때 기본값으로 대체
 ```
 
 ```

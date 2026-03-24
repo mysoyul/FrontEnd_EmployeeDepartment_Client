@@ -71,3 +71,5 @@
 * 저는 React 초보자입니다. Zustand 적용을 진행해 주세요.
 
 * Zustand를 적용한 정리해서 docs 아래에 markdown 문서로 작성해 주세요. Zustand 튜토리얼 문서도 md로 작성해 주세요.
+
+* 현재 React 프로젝트에 React Router를 적용하여 구현하고 싶어요. docs 아래에 React Router에 대한 markdown 문서를 작성해 주세요. Router를 적용에 구현 문서와 React Router 튜토리얼로 나누어서 문서를 작성해 주세요.

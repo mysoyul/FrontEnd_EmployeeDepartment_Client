@@ -21,13 +21,16 @@
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom'; // React Router: 라우팅 기능 활성화
 import './style.css';    // Tailwind CSS — ECMAScript 버전과 동일한 파일을 그대로 사용합니다.
 import App from './App.jsx';
 
-// document.getElementById('root') → index.html의 <div id="root">를 찾아서
-// 그 안에 <App /> 컴포넌트를 그립니다.
+// BrowserRouter: 앱 전체에 라우팅 기능을 제공합니다.
+// App을 감싸기만 하면 되고, 딱 한 번만 설정합니다.
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </StrictMode>
 );

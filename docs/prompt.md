@@ -75,3 +75,5 @@
 * 현재 React 프로젝트에 React Router를 적용하여 구현하고 싶어요. docs 아래에 React Router에 대한 markdown 문서를 작성해 주세요. Router를 적용에 구현 문서와 React Router 튜토리얼로 나누어서 문서를 작성해 주세요.
 
 * fetch() 함수 대신 axios 라이브러리를 사용하여 코드를 수정해 주세요. 수정후 에 axios 대한 markdown 문서를 작성해 주세요.
+
+* @src/api/axiosinstance.js 의 interceptor 에 대한 내용을 @docs/Axios_Tutorial.md 문서에 추가적인 설명을 포함하고, axiosinstance.js 코드에도 추가 설명을 포함해 주세요. 저는 interceptor를 처음 사용하는 개발자입니다. 

@@ -187,32 +187,124 @@ const { data } = await axios.get('/api/employees');
 
 ## 8. 인터셉터 — 요청/응답 가로채기
 
-인터셉터는 **모든 요청 또는 응답을 가로채서 공통 처리**를 추가하는 기능입니다.
+### 8-1. 인터셉터란 무엇인가요?
+
+"intercept(가로채다)"라는 단어 그대로, 요청이나 응답이 목적지에 **도달하기 전에 중간에서 붙잡아** 추가 작업을 수행하는 기능입니다.
+
+**실생활 비유:**
 
 ```
-요청 흐름:
-컴포넌트 → [요청 인터셉터] → 서버 → [응답 인터셉터] → 컴포넌트
+일반 우편:
+  나(컴포넌트) → [우체통] → 서버 → [우체통] → 나(컴포넌트)
 
-인터셉터에서 할 수 있는 것:
-  요청 인터셉터: 토큰 자동 추가, 로딩 시작
-  응답 인터셉터: 에러 메시지 변환, 토큰 만료 처리, 로딩 종료
+인터셉터가 있는 경우:
+  나(컴포넌트) → [★ 요청 인터셉터: 편지 봉투에 도장 찍기] → 서버
+                                                               ↓
+  나(컴포넌트) ← [★ 응답 인터셉터: 수신한 편지 내용 검토] ← 서버
 ```
 
-### 응답 에러 인터셉터 — 서버 에러 메시지 적용
+인터셉터는 **모든** 요청/응답에 자동으로 실행됩니다. 한 번 등록하면 이후 모든 API 호출에 적용되므로, 반복 코드를 없앨 수 있습니다.
 
-이 프로젝트에서 사용하는 패턴입니다.
+---
+
+### 8-2. 요청 인터셉터 vs 응답 인터셉터
+
+```
+컴포넌트
+    │  axios.get('/api/employees')
+    ▼
+[★ 요청 인터셉터]   ← 서버로 떠나기 직전 실행
+    │  주로 하는 일:
+    │  - Authorization 헤더에 토큰 자동 추가
+    │  - 로딩 스피너 시작
+    ▼
+  서버 (Spring Boot)
+    │  HTTP 응답 반환
+    ▼
+[★ 응답 인터셉터]   ← 컴포넌트에 도달하기 직전 실행
+    │  주로 하는 일:
+    │  - 에러 메시지 변환 (이 프로젝트에서 사용)
+    │  - 토큰 만료 시 자동 로그아웃
+    │  - 로딩 스피너 종료
+    ▼
+컴포넌트 (성공: .then / 실패: .catch)
+```
+
+---
+
+### 8-3. 인터셉터 등록 문법
 
 ```js
 axiosInstance.interceptors.response.use(
-    // 성공 응답 (2xx): 그대로 통과
+    성공핸들러,  // 2xx 응답이 왔을 때 실행
+    에러핸들러   // 4xx/5xx 응답이 왔을 때 실행
+);
+```
+
+두 핸들러 모두 **반드시 값을 반환하거나 throw해야 합니다.**
+
+| 핸들러에서 반환하는 값 | 결과 |
+|------------------------|------|
+| `return response` | 성공으로 처리 → `.then()` 실행 |
+| `return Promise.resolve(값)` | 성공으로 처리 → `.then()` 실행 |
+| `return Promise.reject(error)` | 에러로 처리 → `.catch()` 실행 |
+| `throw error` | 에러로 처리 → `.catch()` 실행 |
+
+---
+
+### 8-4. 응답 에러 인터셉터 — 서버 에러 메시지 적용 (이 프로젝트)
+
+이 프로젝트에서 사용하는 패턴입니다.
+
+**문제 상황:**
+
+```
+서버가 400 응답을 보낼 때 응답 본문:
+{ "message": "이미 사용 중인 이메일입니다" }
+
+axios 기본 동작:
+err.message = "Request failed with status code 400"  ← 영어, 의미 없음
+err.response.data = { message: "이미 사용 중인 이메일입니다" }  ← 여기 있지만 꺼내기 번거로움
+
+컴포넌트에서 매번:
+showToast(err.response?.data?.message || err.message, true)  ← 반복 코드
+```
+
+**인터셉터로 해결:**
+
+```
+인터셉터에서 한 번만:
+  error.message = error.response.data.message  (서버 메시지로 교체)
+
+컴포넌트에서 간단하게:
+  showToast(err.message, true)  ← 이미 한국어 서버 메시지
+```
+
+**코드:**
+
+```js
+axiosInstance.interceptors.response.use(
+    // 성공 응답 (2xx): 그대로 통과시킵니다.
+    // response를 반환해야 axios.get()의 결과로 사용할 수 있습니다.
     response => response,
 
-    // 에러 응답 (4xx, 5xx): 서버 메시지로 err.message 교체
+    // 에러 응답 (4xx, 5xx): 서버 메시지로 err.message를 교체합니다.
     error => {
+        // error 객체의 구조:
+        //   error.message          → "Request failed with status code 400"
+        //   error.response.status  → 400
+        //   error.response.data    → { message: "이미 사용 중인 이메일입니다" }
+        //
+        // error.response?.data?.message
+        //   네트워크 단절처럼 응답 자체가 없을 수 있으므로 ?. 으로 안전하게 접근합니다.
         const serverMessage = error.response?.data?.message;
+
         if (serverMessage) {
-            error.message = serverMessage;
+            error.message = serverMessage;  // 메시지 교체
         }
+        // Promise.reject(error)로 에러를 다시 던져야
+        // api 파일의 catch 블록이 실행됩니다.
+        // error.response.status는 그대로 유지되므로 404 분기 처리도 여전히 가능합니다.
         return Promise.reject(error);
     }
 );
@@ -228,6 +320,47 @@ axiosInstance.interceptors.response.use(
 
 컴포넌트: showToast(err.message, true)
 결과: 토스트 메시지에 "이미 사용 중인 이메일입니다" 표시
+```
+
+---
+
+### 8-5. 인터셉터와 404 개별 처리의 조합
+
+인터셉터가 먼저 실행된 뒤 api 파일의 catch로 전달됩니다.
+
+```
+서버가 404 응답
+    ↓
+[응답 인터셉터]
+  error.message = "직원을 찾을 수 없습니다"  (서버 메시지로 교체)
+  return Promise.reject(error)               (다시 throw)
+    ↓
+[employeeApi.js catch 블록]
+  if (err.response?.status === 404) return null;  ← 여전히 동작
+  throw err;
+```
+
+인터셉터가 `error.message`만 교체하고 `error.response`는 건드리지 않으므로, `err.response?.status === 404` 조건은 그대로 동작합니다.
+
+---
+
+### 8-6. 요청 인터셉터 예시 (참고)
+
+이 프로젝트에서는 사용하지 않지만, 토큰 인증이 필요한 프로젝트에서 자주 쓰이는 패턴입니다.
+
+```js
+axiosInstance.interceptors.request.use(
+    // 요청이 서버로 떠나기 직전에 실행
+    config => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            // 모든 요청 헤더에 토큰 자동 추가
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;  // config를 반드시 반환해야 요청이 계속 진행됩니다.
+    },
+    error => Promise.reject(error)
+);
 ```
 
 ---

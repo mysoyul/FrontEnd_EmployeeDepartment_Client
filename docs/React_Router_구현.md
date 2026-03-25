@@ -343,7 +343,7 @@ URL이 현재 탭을 대신 기억합니다.
 ## 9. 전체 데이터 흐름
 
 ```
-[사용자: 주소창에 localhost:5173/emp 입력 또는 NavLink 클릭]
+[사용자: 주소창에 localhost:3000/emp 입력 또는 NavLink 클릭]
   │
   ▼
 BrowserRouter
@@ -364,8 +364,8 @@ App.jsx > <Routes>
 
 | 항목 | 변경 전 | 변경 후 |
 |------|---------|---------|
-| 부서 탭 URL | `localhost:5173` | `localhost:5173/dept` |
-| 직원 탭 URL | `localhost:5173` | `localhost:5173/emp` |
+| 부서 탭 URL | `localhost:3000` | `localhost:3000/dept` |
+| 직원 탭 URL | `localhost:3000` | `localhost:3000/emp` |
 | 새로고침 | 항상 부서 탭으로 초기화 | 현재 탭 유지 |
 | 뒤로가기 | 동작 안 함 | 이전 탭으로 이동 |
 | 즐겨찾기 | 탭 구분 불가 | 각 탭 URL 저장 가능 |

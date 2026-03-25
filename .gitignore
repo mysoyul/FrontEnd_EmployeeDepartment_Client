@@ -1,3 +1,8 @@
 node_modules/
 dist/
 .vite/
+
+# 로컬 전용 환경변수 (git에 올리지 않음 — API 키, 비밀번호 등)
+# .env.development, .env.production은 git에 포함 (민감 정보 없음)
+.env.local
+.env.*.local

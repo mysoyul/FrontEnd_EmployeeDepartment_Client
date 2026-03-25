@@ -11,8 +11,8 @@
  *  axios.create()로 인스턴스를 만들면 공통 설정을 한 번만 정의합니다.
  *
  *    // 인스턴스 사용 후 — baseURL 자동 결합
- *    axios.get('/api/employees');   → http://localhost:8080/api/employees
- *    axios.post('/api/employees');  → http://localhost:8080/api/employees
+ *    axios.get('/api/employees');   → VITE_API_BASE_URL/api/employees
+ *    axios.post('/api/employees');  → VITE_API_BASE_URL/api/employees
  *
  * ─── 인터셉터(Interceptor)란? ─────────────────────────────────────────
  *  "가로채다(intercept)"는 단어 그대로, 요청/응답이 목적지에 도달하기 전에
@@ -47,8 +47,15 @@
 import axios from 'axios';
 
 // ── axios 인스턴스 생성 ───────────────────────────────────────────────
+//
+// import.meta.env.VITE_API_BASE_URL
+//   Vite의 환경변수 접근 방식입니다.
+//   - npm run dev   → .env.development의 VITE_API_BASE_URL 값 사용
+//   - npm run build → .env.production의 VITE_API_BASE_URL 값 사용
+//   - VITE_ 접두사가 없으면 브라우저 코드에서 접근할 수 없습니다. (보안)
+//
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080',                    // 모든 요청에 자동으로 앞에 붙는 URL
+    baseURL: import.meta.env.VITE_API_BASE_URL,          // 환경변수에서 서버 주소를 읽어옵니다.
     headers: { 'Content-Type': 'application/json' },     // POST/PUT 시 본문이 JSON임을 서버에 알림
 });
 

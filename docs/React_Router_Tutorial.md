@@ -203,14 +203,63 @@ import { Navigate } from 'react-router-dom';
 </Routes>
 ```
 
-### replace 속성
+### replace 속성 — 히스토리 교체란?
+
+브라우저는 방문한 페이지를 **스택(stack)** 형태로 기록합니다.
+뒤로가기 버튼은 이 스택에서 이전 페이지를 꺼내는 동작입니다.
+
+**replace 없을 때 (기본값 — 스택에 추가)**
 
 ```
-replace 없음: 히스토리 스택에 쌓임
-  /  →  /dept  →  뒤로가기  →  /  →  또 /dept로 이동 (무한반복 가능)
+/ 접속 → /dept로 이동
 
-replace 있음: /를 /dept로 교체
-  /dept  →  뒤로가기  →  이전 페이지로 자연스럽게 이동
+히스토리 스택:
+  1단계:  [ / ]
+  2단계:  [ /, /dept ]   ← /dept가 추가됨
+
+뒤로가기 누르면:
+  /dept → /  → 또다시 /dept로 자동이동 → 뒤로가기 → /  (무한반복)
+```
+
+**replace 있을 때 (이전 항목을 덮어씀)**
+
+```
+/ 접속 → /dept로 이동
+
+히스토리 스택:
+  1단계:  [ / ]
+  2단계:  [ /dept ]   ← /를 /dept로 교체 (/)가 스택에서 사라짐)
+
+뒤로가기 누르면:
+  /dept → 그 이전 페이지로 자연스럽게 이동 (무한반복 없음)
+```
+
+**실생활 비유**
+
+```
+replace 없음 (push — 추가):
+  노트에 페이지를 계속 추가하는 것
+  1페이지, 2페이지, 3페이지 ... 모두 남아있음
+
+replace 있음 (replace — 교체):
+  화이트보드에 덮어쓰는 것
+  이전 내용이 지워지고 새 내용으로 교체됨
+```
+
+**언제 replace를 사용하나요?**
+
+```
+로그인 성공 후 /dept 이동
+  → replace 사용: 로그인 페이지가 히스토리에 남으면
+    뒤로가기로 다시 로그인 화면이 나와서 이상함
+
+/ 접속 시 /dept로 자동 이동
+  → replace 사용: / 자체는 의미 없는 경로이므로
+    히스토리에 남길 필요 없음
+
+로그아웃 후 /login 이동
+  → replace 사용: 로그아웃 후 뒤로가기로
+    인증이 필요한 페이지에 접근되면 안 됨
 ```
 
 ---
@@ -289,11 +338,45 @@ function LoginPage() {
 ### navigate() 사용법 정리
 
 ```jsx
-navigate('/dept')        // /dept로 이동
-navigate('/dept', { replace: true }) // /dept로 이동 (히스토리 교체)
-navigate(-1)             // 뒤로가기
-navigate(1)              // 앞으로가기
-navigate('/emp/5')       // 파라미터 포함 이동
+navigate('/dept')                    // /dept로 이동 (히스토리에 추가)
+navigate('/dept', { replace: true }) // /dept로 이동 (현재 페이지를 /dept로 교체)
+navigate(-1)                         // 뒤로가기
+navigate(1)                          // 앞으로가기
+navigate('/emp/5')                   // 파라미터 포함 이동
+```
+
+### replace: true — 히스토리 교체
+
+`navigate('/dept')` 와 `navigate('/dept', { replace: true })` 의 차이:
+
+```
+[replace 없음 — 히스토리에 추가]
+
+로그인 페이지에서 로그인 성공 후 /dept로 이동한 경우:
+  히스토리 스택: [ /login, /dept ]
+
+  뒤로가기 누르면:
+    /dept → /login   ← 이미 로그인했는데 로그인 화면이 다시 나옴 (이상함)
+```
+
+```
+[replace: true — 현재 페이지를 교체]
+
+로그인 페이지에서 로그인 성공 후 /dept로 이동한 경우:
+  히스토리 스택: [ /dept ]   ← /login이 /dept로 교체됨
+
+  뒤로가기 누르면:
+    /dept → 로그인 이전 페이지   ← 자연스럽게 동작
+```
+
+**이 프로젝트에서 replace: true를 쓰는 곳:**
+
+```jsx
+// 로그인 성공 후 이동 — 로그인 페이지를 히스토리에 남기지 않음
+navigate('/dept', { replace: true })
+
+// 로그아웃 후 이동 — 로그아웃 후 뒤로가기로 인증 페이지 접근 방지
+navigate('/login', { replace: true })  // App.jsx의 handleLogout
 ```
 
 ---

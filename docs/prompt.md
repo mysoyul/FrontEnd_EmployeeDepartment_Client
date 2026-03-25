@@ -81,3 +81,5 @@
 * .env.development 파일과 .env.production 파일을 작성하여 개발과 운영환경을 위한 설정파일을 작성해 주세요.
 
 * VITE_APP_ENV
+
+* @React_Router_Tutorial.md 문서에 replace: true — 히스토리 교체 내용을 좀 더 쉽게 갱신해 주세요.

@@ -81,3 +81,16 @@
 * .env.development 파일과 .env.production 파일을 작성하여 개발과 운영환경을 위한 설정파일을 작성해 주세요.
 
 * VITE_APP_ENV
+
+@docs/react-client-guide.md 문서는 백엔트 토큰생성 및 체크에 대한 문서입니다. 이문서를 참고하여 인증처리 로직을 구현해주세요.
+구현한 인증 로직을 @docs/react-client-guide.md 문서에 반영해 주세요.
+
+
+```
+admin@aa.com / pwd1 로그인하면
+lockdown-install.js:1 SES Removing unpermitted intrinsics
+:8080/userinfos/login:1  Failed to load resource: the server responded with a status of 404 ()
+```
+
+클라이언트에서 아래와 같은 오류 발생함
+http://localhost:8080/api/departments/page?pageNo=0&pageSize=5&sortBy=id&sortDir=asc' from origin 'http://localhost:3000' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.

@@ -185,9 +185,175 @@ const { data } = await axios.get('/api/employees');
 
 ---
 
-## 8. 인터셉터 — 요청/응답 가로채기
+## 8. Promise — 비동기 처리의 기초
 
-### 8-1. 인터셉터란 무엇인가요?
+### 8-1. Promise란 무엇인가요?
+
+`Promise`는 **"미래에 완료될 작업의 결과를 담는 객체"** 입니다.
+
+서버에 데이터를 요청하면 결과가 즉시 오지 않습니다. 그 사이에 다른 코드를 실행할 수 있고, 결과가 오면 그 때 처리합니다. Promise는 이런 비동기 작업을 다루는 방법입니다.
+
+**실생활 비유 — 식당 진동벨:**
+
+```
+손님이 주문 → 진동벨 받음 (Promise 객체)
+                → 음식 준비 중 (pending 상태)
+                → 음식 완성 → 벨 울림 (fulfilled)
+                → 재료 소진 → 벨 울림 (rejected)
+```
+
+주문 후 자리에서 다른 일을 할 수 있습니다 — 음식이 나올 때까지 카운터 앞에서 기다리지 않아도 됩니다.
+
+---
+
+### 8-2. Promise의 세 가지 상태
+
+```
+Promise
+  ┌─────────────────────────────────────────────┐
+  │                                             │
+  │  pending (대기)                              │
+  │  : 작업이 아직 완료되지 않은 초기 상태       │
+  │                                             │
+  │       ┌──────────────┬──────────────┐       │
+  │       ▼              ▼              │       │
+  │  fulfilled (이행)  rejected (거부)  │       │
+  │  : 작업 성공       : 작업 실패      │       │
+  │  : 결과값 반환     : 에러 반환      │       │
+  └─────────────────────────────────────────────┘
+```
+
+| 상태 | 의미 | 예시 |
+|------|------|------|
+| `pending` | 아직 완료되지 않음 | 서버 응답을 기다리는 중 |
+| `fulfilled` | 성공적으로 완료됨 | 서버가 200 응답과 데이터 반환 |
+| `rejected` | 실패로 완료됨 | 네트워크 오류, 서버 400/500 응답 |
+
+상태는 한 번만 변경됩니다 — fulfilled 또는 rejected가 되면 다시 pending으로 돌아갈 수 없습니다.
+
+---
+
+### 8-3. .then() / .catch() / .finally()
+
+Promise의 결과를 처리하는 세 가지 메서드입니다.
+
+```js
+fetch('/api/employees')        // Promise 반환
+    .then(response => {        // fulfilled(성공)일 때 실행
+        return response.json();
+    })
+    .then(data => {            // 앞의 .then()이 반환한 값으로 실행
+        console.log(data);
+    })
+    .catch(error => {          // rejected(실패)일 때 실행
+        console.error(error.message);
+    })
+    .finally(() => {           // 성공/실패 관계없이 항상 실행
+        setLoading(false);
+    });
+```
+
+| 메서드 | 실행 시점 | 주로 하는 일 |
+|--------|----------|-------------|
+| `.then(fn)` | fulfilled(성공) 시 | 결과 데이터 처리 |
+| `.catch(fn)` | rejected(실패) 시 | 에러 처리, 사용자에게 메시지 표시 |
+| `.finally(fn)` | 항상 | 로딩 상태 해제, 정리 작업 |
+
+---
+
+### 8-4. Promise.resolve() / Promise.reject()
+
+이미 값이 있을 때 즉시 이행/거부 상태의 Promise를 만드는 방법입니다.
+
+```js
+// Promise.resolve(값) — 즉시 fulfilled 상태의 Promise 반환
+Promise.resolve(42)
+    .then(value => console.log(value));  // 42 출력
+
+// Promise.reject(에러) — 즉시 rejected 상태의 Promise 반환
+Promise.reject(new Error('실패!'))
+    .catch(err => console.error(err.message));  // '실패!' 출력
+```
+
+**이 프로젝트에서 쓰이는 곳 — axiosInstance.js 인터셉터:**
+
+```js
+// 에러 인터셉터에서 에러를 다시 throw할 때
+return Promise.reject(error);
+// ↑ 이렇게 해야 employeeApi.js의 catch 블록이 실행됩니다.
+//   그냥 throw error 해도 동일하게 동작합니다.
+```
+
+---
+
+### 8-5. async / await — Promise를 더 읽기 쉽게
+
+`async/await`는 Promise를 동기 코드처럼 읽히게 만드는 문법입니다.
+
+```js
+// Promise 체인 방식
+function getEmployee(id) {
+    return axios.get(`/api/employees/${id}`)
+        .then(response => response.data)
+        .catch(err => { throw err; });
+}
+
+// async/await 방식 — 같은 동작, 더 읽기 쉬움
+async function getEmployee(id) {
+    const { data } = await axios.get(`/api/employees/${id}`);
+    return data;
+}
+```
+
+`await`는 Promise가 fulfilled 또는 rejected 될 때까지 기다립니다.
+rejected(실패)이면 에러를 throw하므로 `try/catch`로 잡습니다.
+
+```js
+async function getEmployee(id) {
+    try {
+        const { data } = await axios.get(`/api/employees/${id}`);
+        return data;
+    } catch (err) {
+        // Promise rejected → 여기서 에러 처리
+        if (err.response?.status === 404) return null;
+        throw err;
+    }
+}
+```
+
+**이 프로젝트의 모든 API 함수는 async/await 방식을 사용합니다.**
+
+---
+
+### 8-6. Promise 흐름 요약
+
+```
+axios.get('/api/employees')
+    │
+    │  서버 응답 대기 (pending)
+    │
+    ├─ 응답 성공 (fulfilled) ──────────────────────────────────
+    │     .then(response => response.data)
+    │          → 데이터 반환
+    │
+    └─ 응답 실패 (rejected) ──────────────────────────────────
+          .catch(err => ...)
+               → 에러 처리 (토스트 메시지, null 반환 등)
+```
+
+```
+async/await 동일 흐름:
+
+const { data } = await axios.get('/api/employees');
+//                ↑ fulfilled → data 사용 가능
+//                  rejected  → 에러 throw → catch 블록으로 이동
+```
+
+---
+
+## 9. 인터셉터 — 요청/응답 가로채기
+
+### 9-1. 인터셉터란 무엇인가요?
 
 "intercept(가로채다)"라는 단어 그대로, 요청이나 응답이 목적지에 **도달하기 전에 중간에서 붙잡아** 추가 작업을 수행하는 기능입니다.
 
@@ -207,7 +373,7 @@ const { data } = await axios.get('/api/employees');
 
 ---
 
-### 8-2. 요청 인터셉터 vs 응답 인터셉터
+### 9-2. 요청 인터셉터 vs 응답 인터셉터
 
 ```
 컴포넌트
@@ -232,7 +398,7 @@ const { data } = await axios.get('/api/employees');
 
 ---
 
-### 8-3. 인터셉터 등록 문법
+### 9-3. 인터셉터 등록 문법
 
 ```js
 axiosInstance.interceptors.response.use(
@@ -252,7 +418,7 @@ axiosInstance.interceptors.response.use(
 
 ---
 
-### 8-4. 응답 에러 인터셉터 — 서버 에러 메시지 적용 (이 프로젝트)
+### 9-4. 응답 에러 인터셉터 — 서버 에러 메시지 적용 (이 프로젝트)
 
 이 프로젝트에서 사용하는 패턴입니다.
 
@@ -324,7 +490,7 @@ axiosInstance.interceptors.response.use(
 
 ---
 
-### 8-5. 인터셉터와 404 개별 처리의 조합
+### 9-5. 인터셉터와 404 개별 처리의 조합
 
 인터셉터가 먼저 실행된 뒤 api 파일의 catch로 전달됩니다.
 
@@ -344,7 +510,7 @@ axiosInstance.interceptors.response.use(
 
 ---
 
-### 8-6. 요청 인터셉터 예시 (참고)
+### 9-6. 요청 인터셉터 예시 (참고)
 
 이 프로젝트에서는 사용하지 않지만, 토큰 인증이 필요한 프로젝트에서 자주 쓰이는 패턴입니다.
 
@@ -365,7 +531,7 @@ axiosInstance.interceptors.request.use(
 
 ---
 
-## 9. 이 프로젝트 적용 내용
+## 10. 이 프로젝트 적용 내용
 
 ### 추가/수정된 파일
 
@@ -452,7 +618,7 @@ const checkResponse = async (response) => {
 
 ---
 
-## 10. axios 인스턴스 + 인터셉터 전체 흐름
+## 11. axios 인스턴스 + 인터셉터 전체 흐름
 
 ```
 컴포넌트
@@ -491,7 +657,7 @@ EmpList.jsx (자동 리렌더링)
 
 ---
 
-## 11. 주의사항
+## 12. 주의사항
 
 | 항목 | 설명 |
 |------|------|

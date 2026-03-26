@@ -83,3 +83,5 @@
 * VITE_APP_ENV
 
 * @React_Router_Tutorial.md 문서에 replace: true — 히스토리 교체 내용을 좀 더 쉽게 갱신해 주세요.
+
+* @Axios_Tutorial.md 에 Promise 객체에 대한 기초적인 설명도 interceptor 전에 추가해 주세요.

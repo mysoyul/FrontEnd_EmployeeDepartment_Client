@@ -1,91 +1,101 @@
 /**
  * employeeApi.js — 직원(Employee) API 통신
  *
- * ─── fetch → axios 변경 후 달라진 점 ─────────────────────────────────
+ * ─── axios → fetch 변경 후 달라진 점 ─────────────────────────────────
  *
- *  1. checkResponse() 함수 제거
- *     axios는 2xx 이외의 응답에서 자동으로 에러를 throw합니다.
- *     수동으로 응답 상태를 확인할 필요가 없습니다.
+ *  1. checkResponse() 함수 추가
+ *     fetch는 4xx/5xx 응답도 성공으로 처리합니다.
+ *     checkResponse()로 수동으로 확인하고 에러를 throw합니다.
  *
- *  2. response.json() → response.data
- *     axios는 응답 본문을 자동으로 파싱하여 response.data에 담습니다.
- *     JSON.parse나 .json() 호출이 필요 없습니다.
+ *  2. response.data → response.json()
+ *     fetch는 응답 본문을 자동으로 파싱하지 않습니다.
+ *     .json()을 직접 호출해야 JavaScript 객체로 변환됩니다.
  *
- *  3. headers / JSON.stringify 제거
- *     axiosInstance에 Content-Type이 공통 설정되어 있고,
- *     객체를 body로 전달하면 axios가 자동으로 JSON.stringify합니다.
+ *  3. POST/PUT 요청에 headers + JSON.stringify 직접 설정
+ *     fetch는 객체를 자동으로 JSON으로 변환하지 않습니다.
+ *     headers: { 'Content-Type': 'application/json' }
+ *     body: JSON.stringify(data)  를 직접 작성해야 합니다.
  *
- *  4. 쿼리 파라미터: URLSearchParams → params 옵션
- *     axios.get(url, { params: { key: value } }) 으로 간결하게 작성합니다.
+ *  4. 쿼리 파라미터: params 옵션 → URLSearchParams
+ *     fetch에는 params 옵션이 없습니다.
+ *     URLSearchParams로 쿼리 문자열을 만들어 URL에 직접 붙입니다.
  *
- *  5. 404 처리: response.status 확인 → catch로 처리
- *     axios는 404도 에러로 throw하므로 catch 블록에서 처리합니다.
+ *  5. 404 처리: catch → response.status 직접 확인
+ *     fetch는 404를 에러로 throw하지 않습니다.
+ *     checkResponse() 호출 전에 response.status === 404를 먼저 확인합니다.
  */
-import axios from './axiosInstance.js';
+import { BASE_URL, checkResponse } from './fetchClient.js';
 
 export class EmployeeApi {
-    #base = '/api/employees';
+    #base = `${BASE_URL}/api/employees`;
 
     // 전체 직원 목록 조회 — GET /api/employees
     async getAll() {
-        const { data } = await axios.get(this.#base);
-        return data;
+        const response = await fetch(this.#base);
+        await checkResponse(response);
+        return response.json();
     }
 
     // 직원 + 부서 정보 함께 조회 — GET /api/employees/departments
     async getAllWithDepartments() {
-        const { data } = await axios.get(`${this.#base}/departments`);
-        return data;
+        const response = await fetch(`${this.#base}/departments`);
+        await checkResponse(response);
+        return response.json();
     }
 
     // ID로 직원 단건 조회 — GET /api/employees/{id}
-    // 404이면 null 반환, 그 외 에러는 그대로 throw
+    // 404이면 null 반환, 그 외 에러는 checkResponse에서 throw
     async getById(id) {
-        try {
-            const { data } = await axios.get(`${this.#base}/${id}`);
-            return data;
-        } catch (err) {
-            if (err.response?.status === 404) return null;
-            throw err;
-        }
+        const response = await fetch(`${this.#base}/${id}`);
+        if (response.status === 404) return null;
+        await checkResponse(response);
+        return response.json();
     }
 
     // 이메일로 직원 조회 — GET /api/employees/email/{email}
     async getByEmail(email) {
-        try {
-            const { data } = await axios.get(`${this.#base}/email/${email}`);
-            return data;
-        } catch (err) {
-            if (err.response?.status === 404) return null;
-            throw err;
-        }
+        const response = await fetch(`${this.#base}/email/${email}`);
+        if (response.status === 404) return null;
+        await checkResponse(response);
+        return response.json();
     }
 
     // 직원 생성 — POST /api/employees
     async create(employeeData) {
-        const { data } = await axios.post(this.#base, employeeData);
-        return data;
+        const response = await fetch(this.#base, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(employeeData),
+        });
+        await checkResponse(response);
+        return response.json();
     }
 
     // 직원 수정 — PUT /api/employees/{id}
     async update(id, employeeData) {
-        const { data } = await axios.put(`${this.#base}/${id}`, employeeData);
-        return data;
+        const response = await fetch(`${this.#base}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(employeeData),
+        });
+        await checkResponse(response);
+        return response.json();
     }
 
     // 페이징 직원 목록 조회 — GET /api/employees/page
-    // params 옵션: axios가 자동으로 ?pageNo=0&pageSize=5&... 쿼리 문자열을 만들어줍니다.
+    // URLSearchParams: ?pageNo=0&pageSize=5&sortBy=id&sortDir=asc 쿼리 문자열 생성
     async getPage({ pageNo = 0, pageSize = 5, sortBy = 'id', sortDir = 'asc' } = {}) {
-        const { data } = await axios.get(`${this.#base}/page`, {
-            params: { pageNo, pageSize, sortBy, sortDir },
-        });
-        return data;
+        const params = new URLSearchParams({ pageNo, pageSize, sortBy, sortDir });
+        const response = await fetch(`${this.#base}/page?${params}`);
+        await checkResponse(response);
+        return response.json();
         // 응답 구조: { content, pageNo, pageSize, totalElements, totalPages, last }
     }
 
     // 직원 삭제 — DELETE /api/employees/{id}
     async delete(id) {
-        await axios.delete(`${this.#base}/${id}`);
+        const response = await fetch(`${this.#base}/${id}`, { method: 'DELETE' });
+        await checkResponse(response);
         return true;
     }
 }

@@ -83,3 +83,7 @@
 * VITE_APP_ENV
 
 * @React_Router_Tutorial.md 문서에 replace: true — 히스토리 교체 내용을 좀 더 쉽게 갱신해 주세요.
+
+* axios 라이브러리를 이전에 사용했던 fetch() 함수 사용으로 변경하고 .env 환경설정파일도 사용하지 않도록 변경해 주세요.
+
+axiosInstance.js 파일명을 적당한 파일명으로 변경해 주세요. 

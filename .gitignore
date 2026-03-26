@@ -6,3 +6,8 @@ dist/
 # .env.development, .env.production은 git에 포함 (민감 정보 없음)
 .env.local
 .env.*.local
+
+2차Project가이드/
+.claude
+
+docs/prompt.md

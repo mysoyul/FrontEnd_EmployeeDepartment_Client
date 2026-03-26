@@ -90,7 +90,64 @@
 admin@aa.com / pwd1 로그인하면
 lockdown-install.js:1 SES Removing unpermitted intrinsics
 :8080/userinfos/login:1  Failed to load resource: the server responded with a status of 404 ()
-```
 
 클라이언트에서 아래와 같은 오류 발생함
 http://localhost:8080/api/departments/page?pageNo=0&pageSize=5&sortBy=id&sortDir=asc' from origin 'http://localhost:3000' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+```
+* 인증과 회원가입 관련 내용을 @docs/Auth_구현.md 문서에 업데이트 해주세요. 저는 인증관련 클라이언트 구현 초보자입니다. 
+
+
+```
+첫번째로 @2차Project가이드\1프로젝트가이드\ 아래에 있는 md문서의 부족하거나 보완해야 할 부분을 수정해 주세요.
+Backend는 SpringBoot + Spring Data JPA + Validation + MariaDB (Flyway) + Spring Security 를 사용함
+   - REST API도 작성해서 제공하지만 관리자 페이지는 Thymeleaf를 사용하여 작성하고 싶음 
+Frontend는 React + React Router + Zustand + Axios + Vite  를 사용함 
+   - 현재는 tailwindcss 를 사용하였으나 React UI 라이브러리도 사용할 예정입니다.
+   - 화면설계를 어떻게 시작해야 할지 전혀 모르겠음 화면설계 및 디자인에 대한 가이드가 많이 필요함
+
+@2차Project가이드\1프로젝트가이드\0백엔드_스프링부트.md 문서에 Gradle 대신 Maven 사용으로 변경해 주세요.   
+
+@2차Project가이드\1프로젝트가이드\React화면설계가이드_입문자를위한화면설계시작하기.md 문서에서 와이어 프레임으로 대략적인 화면을 그린 다음 단계에서 해야 할일들을 좀 더 자세하게 알려주세요. 
+화면설계 및 디자인을 어떻게 시작해야 할지 전혀 모르겠음 
+
+
+@2차Project가이드\1프로젝트가이드\0백엔드_스프링부트.md 문서의 온라인 도서관 시스템 예시에 맞게 2.4와 2.5를 수정해 주세요.
+### 2.4 Spring Security + JWT 설정 가이드
+### 2.5 Thymeleaf 관리자 페이지 구조
+
+
+@2차Project가이드\1프로젝트가이드\0백엔드_스프링부트.md 문서의 온라인 도서관 시스템 예시에 맞게 
+
+@2차Project가이드\1프로젝트가이드\React화면설계가이드_입문자를위한화면설계시작하기.md 문서의 내용을 기준으로 
+React화면설계가이드_Figma기반화면설계방법론.md 문서도 보완 수정해 주세요.
+
+@2차Project가이드\1프로젝트가이드\React화면설계가이드_입문자를위한화면설계시작하기.md 문서의 내용을 기준으로
+shadcn/ui + MUI DataGrid 조합으로 한 가이드 문서 md 도 작성해 주세요.
+
+React UI 컴포넌트를 어떤 라이브러리를 선택하면 좋을까요?
+
+@2차Project가이드\1프로젝트가이드\0백엔드_스프링부트.md 문서의 온라인 도서관 시스템 예시에 맞게 
+도서관 관리자가 사용하는 Thymeleaf화면설계가이드및예시.md 문서를 수정 보완해 주세요.
+
+
+@2차Project가이드\0필수제출문서를 수정 보완해 주세요.
+- 문서는 온라인 도서관 시스템을 기준으로 작성해 주세요.
+- 1) 1.도메인설계서템플릿.md ~ 4.UI화면설계서템플릿.md  4개의 문서를 모두 수정해 주세요.
+- 2) @2차Project가이드\1프로젝트 가이드 문서를 참고해 주세요.
+- 3) 4.UI화면설계서템플릿.md에 대한 예시4_화면설계서.md를 작성해 주세요.
+- 4) 5.React컴포넌트와Props_State설계서템플릿.md에 대한 예시5_React컴포넌트와Props_State설계서템플릿.md를 작성해 주세요.
+
+@2차Project가이드\0필수제출문서\5.React컴포넌트와Props_State설계서템플릿.md  문서에서
+컴포넌트 설계에 어떻게 해야 할지에 대한 내용을 좀 더 수정 보완해 주세요.
+예시5_React컴포넌트와Props_State설계서.md 에도 반영해 주세요.
+
+@2차Project가이드\1프로젝트가이드\0필수제출문서 폴더 아래의 모든 문서들이 온라인 도서관 시스템 예시에 맞게 작성되었는지 검증하여 수정해 주세요.
+
+@2차Project가이드\1프로젝트가이드\1프로젝트가이드 폴더 아래의 모든 문서들이 온라인 도서관 시스템 예시에 맞게 작성되었는지 검증하여 수정해 주세요.
+
+@2차Project가이드\1프로젝트가이드\0필수제출문서 폴더 아래의 템플릿 문서들의 양과 난이도를 20% 정도 줄이거나 낮추어 주세요.
+1) 대상이 되는 문서 - 1.도메인설계서템플릿.md ~ 5.React컴포넌트와Props_State설계서템플릿.md
+2) 문서의 양을 줄이는 이유는 학생들이 작성해서 제출해야 하는 내용이 너무 많은 것 같아서 줄이려고 합니다.
+3) 학생들이 이해하기 쉽도록 템플릿 문서의 난이도도 낮추어 주세요.
+
+```
